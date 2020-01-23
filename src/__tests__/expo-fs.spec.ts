@@ -11,8 +11,6 @@ let fs: FileSystemAsync;
 beforeAll(async () => {
   const bucket = "web-file-system-test";
 
-  // TODO
-
   const factory = new ExpoFsLocalFileSystemAsync(bucket);
   fs = await factory.requestFileSystemAsync(
     window.PERSISTENT,

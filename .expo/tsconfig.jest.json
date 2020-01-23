@@ -1,0 +1,11 @@
+{
+  "extends": "/Users/nikochan2k/Documents/Programming/Typescript/kura-expo-fs/tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "typeRoots": [
+      "./node_modules/@types",
+      "../node_modules/@types",
+      "/Users/nikochan2k/Documents/Programming/Typescript/kura-expo-fs/node_modules/expo-module-scripts/ts-declarations"
+    ]
+  }
+}
