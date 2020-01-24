@@ -30,6 +30,7 @@ test("add empty file", async done => {
   done();
 });
 
+/*
 test("add text file", async done => {
   let fileEntry = await fs.root.getFile("test.txt", {
     create: true,
@@ -228,3 +229,4 @@ test("remove recursively", async done => {
 
   done();
 });
+*/

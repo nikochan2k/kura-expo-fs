@@ -1,3 +1,4 @@
+import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
 import {
   AbstractAccessor,
   base64ToBlob,
@@ -15,7 +16,6 @@ import {
   readDirectoryAsync,
   writeAsStringAsync
 } from "expo-file-system";
-import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
 
 export class ExpoFsAccessor extends AbstractAccessor {
   filesystem: FileSystem;

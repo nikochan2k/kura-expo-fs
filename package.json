@@ -66,6 +66,6 @@
   },
   "dependencies": {
     "expo-file-system": "^8.0.0",
-    "kura": "^0.1.21"
+    "kura": "^0.1.22"
   }
 }

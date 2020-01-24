@@ -3959,10 +3959,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-kura@^0.1.21:
-  version "0.1.21"
-  resolved "https://registry.yarnpkg.com/kura/-/kura-0.1.21.tgz#9e0fa7cddcf7c8c6cb62243f802f959196db31cb"
-  integrity sha512-Ys7ubgF018X4LUxKVFGEp4oNeEvtpbHdq4HaMfK3u/YGqW3iHO2IOQ/2KExXUrIgR6TFMkcBDoAh1pamhVK76g==
+kura@^0.1.22:
+  version "0.1.22"
+  resolved "https://registry.yarnpkg.com/kura/-/kura-0.1.22.tgz#e145abedb84390c5793f25548be757f82d1229f5"
+  integrity sha512-5UqpZ6IrccSXJK/dOb97WKanRSFi/3dJlsxSTrT7pWhJ0YvxNg+MUnyPpeayi/KjP8I/FZN0LEggrfPxpVONSQ==
 
 lcid@^1.0.0:
   version "1.0.0"
