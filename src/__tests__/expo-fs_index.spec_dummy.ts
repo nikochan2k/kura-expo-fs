@@ -9,7 +9,7 @@ import { ExpoFsLocalFileSystemAsync } from "../expo-fs/ExpoFsLocalFileSystemAsyn
 
 let fs: FileSystemAsync;
 beforeAll(async () => {
-  const bucket = "web-file-system-test";
+  const bucket = "web-file-system-index-test";
 
   // TODO
 
