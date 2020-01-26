@@ -1,2 +1,1 @@
-import * as ExpoFs from "./expo-fs";
-export { ExpoFs };
+export * from "./expo-fs";
