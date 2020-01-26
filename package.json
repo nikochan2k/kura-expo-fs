@@ -67,7 +67,7 @@
   "dependencies": {
     "expo": "^36.0.2",
     "expo-file-system": "^8.0.0",
-    "kura": "^0.1.30",
+    "kura": "^0.1.31",
     "react": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz"
   }

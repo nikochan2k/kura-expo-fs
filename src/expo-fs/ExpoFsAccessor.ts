@@ -48,12 +48,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
       : null;
   }
 
-  async hasChild(fullPath: string) {
-    const fileUri = this.getFileUri(fullPath);
-    const entries = await readDirectoryAsync(fileUri);
-    return 0 < entries.length;
-  }
-
   protected async doDelete(fullPath: string, isFile: boolean) {
     const fileUri = this.getFileUri(fullPath);
     if (isFile) {
