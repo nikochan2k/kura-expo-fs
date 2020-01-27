@@ -57,7 +57,9 @@ test("add text file", async done => {
       exclusive: true
     });
     fail();
-  } catch (e) {}
+  } catch (e) {
+    expect(e).toBeInstanceOf(InvalidModificationError);
+  }
   fileEntry = await fs.root.getFile("test.txt");
   file = await fileEntry.file();
   expect(file.size).toBe(8);
