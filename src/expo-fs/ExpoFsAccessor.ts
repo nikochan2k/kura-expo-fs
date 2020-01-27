@@ -15,7 +15,8 @@ import {
   FileSystem,
   FileSystemObject,
   INDEX_FILE_NAME,
-  InvalidModificationError
+  InvalidModificationError,
+  Permission
 } from "kura";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
 
@@ -23,20 +24,20 @@ export class ExpoFsAccessor extends AbstractAccessor {
   filesystem: FileSystem;
   name: string;
 
-  constructor(private rootDir: string, useIndex: boolean) {
-    super(useIndex);
+  constructor(private rootDir: string, permission: Permission) {
+    super(permission);
     this.filesystem = new ExpoFsFileSystem(this);
     this.name = rootDir;
   }
 
-  async getContent(fullPath: string): Promise<Blob> {
+  async doGetContent(fullPath: string): Promise<Blob> {
     const content = await readAsStringAsync(this.getFileUri(fullPath), {
       encoding: EncodingType.UTF8
     });
     return base64ToBlob(content);
   }
 
-  async getObject(fullPath: string): Promise<FileSystemObject> {
+  async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await getInfoAsync(this.getFileUri(fullPath), { size: true });
     return info.exists
       ? {

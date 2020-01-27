@@ -1,14 +1,17 @@
-import { AbstractAccessor, AbstractLocalFileSystem } from "kura";
+import { AbstractAccessor, AbstractLocalFileSystem, Permission } from "kura";
 import { ExpoFsAccessor } from "./ExpoFsAccessor";
 
 export class ExpoFsLocalFileSystem extends AbstractLocalFileSystem {
-  constructor(private rootDir: string, useIndex: boolean) {
-    super(useIndex);
+  constructor(rootDir: string);
+  constructor(rootDir: string, useIndex: boolean);
+  constructor(rootDir: string, permission: Permission);
+  constructor(private rootDir: string, config?: any) {
+    super(config);
   }
 
-  protected createAccessor(useIndex: boolean): Promise<AbstractAccessor> {
+  protected createAccessor(): Promise<AbstractAccessor> {
     return new Promise<ExpoFsAccessor>(resolve => {
-      const accessor = new ExpoFsAccessor(this.rootDir, useIndex);
+      const accessor = new ExpoFsAccessor(this.rootDir, this.permission);
       resolve(accessor);
     });
   }

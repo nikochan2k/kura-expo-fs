@@ -4033,10 +4033,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-kura@^0.1.31:
-  version "0.1.31"
-  resolved "https://registry.yarnpkg.com/kura/-/kura-0.1.31.tgz#4673823875e1c53a85c0447fd8caca27d75142f3"
-  integrity sha512-/3yu/VQWWa7tzMpp7ngMI3OXF8jzakuOoz5fmkpA+wTUJ5NiLsWqMKb9l1CKPqMIffFNs6Bq1u7BihI7q0fcgg==
+kura@^0.1.37:
+  version "0.1.37"
+  resolved "https://registry.yarnpkg.com/kura/-/kura-0.1.37.tgz#c7e891c1d8543ee08a2fde67003db533781ed0b1"
+  integrity sha512-C/zt6kQJfyr4ybikN4bC3lBMgQ9sAh5LcjeMfe8t0gJyxWJxAy++3HpBNOMmun8WFQK+UTb19V8s7LQvwYAjxg==
 
 lcid@^1.0.0:
   version "1.0.0"
