@@ -3,7 +3,8 @@ import {
   DirectoryEntryAsync,
   FileSystemAsync,
   InvalidModificationError,
-  NotFoundError
+  NotFoundError,
+  PathExistsError
 } from "kura";
 import { ExpoFsLocalFileSystemAsync } from "../expo-fs/ExpoFsLocalFileSystemAsync";
 
@@ -43,7 +44,7 @@ test("add text file", async done => {
   expect(fileEntry.isFile).toBe(true);
 
   let writer = await fileEntry.createWriter();
-  await writer.write(new Blob(["hoge"], { type: "text/plain" }));
+  await writer.writeFile(new Blob(["hoge"], { type: "text/plain" }));
   expect(writer.position).toBe(4);
   let file = await fileEntry.file();
   expect(file.size).toBe(4);
@@ -209,7 +210,7 @@ test("remove a not empty folder", async done => {
     await entry.remove();
     fail();
   } catch (e) {
-    expect(e).toBeInstanceOf(InvalidModificationError);
+    expect(e).toBeInstanceOf(PathExistsError);
   }
 
   done();
