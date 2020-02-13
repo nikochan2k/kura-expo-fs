@@ -31,14 +31,20 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   async doGetContent(fullPath: string): Promise<Blob> {
-    const content = await readAsStringAsync(this.getFileUri(fullPath), {
+    const fileUri = this.getFileUri(fullPath);
+    const info = await getInfoAsync(fileUri);
+    if (!info.exists) {
+      return null;
+    }
+    const content = await readAsStringAsync(fileUri, {
       encoding: EncodingType.UTF8
     });
     return base64ToBlob(content);
   }
 
   async doGetObject(fullPath: string): Promise<FileSystemObject> {
-    const info = await getInfoAsync(this.getFileUri(fullPath), { size: true });
+    const fileUri = this.getFileUri(fullPath);
+    const info = await getInfoAsync(fileUri, { size: true });
     return info.exists
       ? {
           fullPath: fullPath,
