@@ -37,7 +37,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
       return null;
     }
     const content = await readAsStringAsync(fileUri, {
-      encoding: EncodingType.UTF8
+      encoding: EncodingType.Base64
     });
     return base64ToBlob(content);
   }
@@ -98,7 +98,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     const fileUri = this.getFileUri(fullPath);
     const base64 = await blobToBase64(content);
     await writeAsStringAsync(fileUri, base64, {
-      encoding: "base64"
+      encoding: EncodingType.Base64
     });
   }
 
@@ -106,7 +106,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     const fileUri = this.getFileUri(obj.fullPath);
     if (obj.size != null) {
       await writeAsStringAsync(fileUri, "", {
-        encoding: "base64"
+        encoding: EncodingType.Base64
       });
     } else {
       await makeDirectoryAsync(fileUri);
