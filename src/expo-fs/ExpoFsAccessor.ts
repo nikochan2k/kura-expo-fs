@@ -46,6 +46,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doDelete(fullPath: string, isFile: boolean) {
     const fileUri = this.toURL(fullPath);
+    const info = await getInfoAsync(fileUri);
+    if (!info.exists) {
+      return;
+    }
     if (isFile) {
       await deleteAsync(fileUri);
     } else {
@@ -124,7 +128,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
         encoding: EncodingType.Base64
       });
     } else {
-      await makeDirectoryAsync(fileUri);
+      const info = await getInfoAsync(fileUri);
+      if (!info.exists) {
+        await makeDirectoryAsync(fileUri);
+      }
     }
   }
 }
