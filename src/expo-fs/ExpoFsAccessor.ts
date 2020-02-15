@@ -31,10 +31,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     this.name = rootDir;
   }
 
-  getUri(fullPath: string) {
-    return `${this.rootDir}${fullPath}`;
-  }
-
   async resetObject(fullPath: string, size?: number) {
     const obj = await this.doGetObject(fullPath);
     if (!obj) {
@@ -44,8 +40,12 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return obj;
   }
 
+  toURL(fullPath: string): string {
+    return `${this.rootDir}${fullPath}`;
+  }
+
   protected async doDelete(fullPath: string, isFile: boolean) {
-    const fileUri = this.getUri(fullPath);
+    const fileUri = this.toURL(fullPath);
     if (isFile) {
       await deleteAsync(fileUri);
     } else {
@@ -67,7 +67,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doGetContent(fullPath: string): Promise<Blob> {
-    const fileUri = this.getUri(fullPath);
+    const fileUri = this.toURL(fullPath);
     const info = await getInfoAsync(fileUri);
     if (!info.exists) {
       return null;
@@ -79,7 +79,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
-    const fileUri = this.getUri(fullPath);
+    const fileUri = this.toURL(fullPath);
     const info = await getInfoAsync(fileUri, { size: true });
     return info.exists
       ? {
@@ -92,7 +92,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
-    const readdirUri = this.getUri(dirPath);
+    const readdirUri = this.toURL(dirPath);
     const names = await readDirectoryAsync(readdirUri);
     const objects: FileSystemObject[] = [];
     for (const name of names) {
@@ -110,7 +110,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doPutContent(fullPath: string, content: Blob) {
-    const fileUri = this.getUri(fullPath);
+    const fileUri = this.toURL(fullPath);
     const base64 = await blobToBase64(content);
     await writeAsStringAsync(fileUri, base64, {
       encoding: EncodingType.Base64
@@ -118,7 +118,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doPutObject(obj: FileSystemObject) {
-    const fileUri = this.getUri(obj.fullPath);
+    const fileUri = this.toURL(obj.fullPath);
     if (obj.size != null) {
       await writeAsStringAsync(fileUri, "", {
         encoding: EncodingType.Base64

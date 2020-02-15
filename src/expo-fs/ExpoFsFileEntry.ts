@@ -27,8 +27,4 @@ export class ExpoFsFileEntry extends AbstractFileEntry<ExpoFsAccessor> {
       ...obj
     });
   }
-
-  toURL() {
-    return this.params.accessor.getUri(this.fullPath);
-  }
 }

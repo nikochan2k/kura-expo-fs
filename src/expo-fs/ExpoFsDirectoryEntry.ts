@@ -34,8 +34,4 @@ export class ExpoFsDirectoryEntry extends AbstractDirectoryEntry<
       ...obj
     });
   }
-
-  toURL() {
-    return this.params.accessor.getUri(this.fullPath);
-  }
 }
