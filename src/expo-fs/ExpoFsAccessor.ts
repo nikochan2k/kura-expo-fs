@@ -31,29 +31,17 @@ export class ExpoFsAccessor extends AbstractAccessor {
     this.name = rootDir;
   }
 
-  async doGetContent(fullPath: string): Promise<Blob> {
-    const fileUri = this.getUri(fullPath);
-    const info = await getInfoAsync(fileUri);
-    if (!info.exists) {
-      return null;
-    }
-    const content = await readAsStringAsync(fileUri, {
-      encoding: EncodingType.Base64
-    });
-    return base64ToBlob(content);
+  getUri(fullPath: string) {
+    return `${this.rootDir}${fullPath}`;
   }
 
-  async doGetObject(fullPath: string): Promise<FileSystemObject> {
-    const fileUri = this.getUri(fullPath);
-    const info = await getInfoAsync(fileUri, { size: true });
-    return info.exists
-      ? {
-          fullPath: fullPath,
-          name: fullPath.split(DIR_SEPARATOR).pop(),
-          lastModified: info.modificationTime,
-          size: info.isDirectory ? undefined : info.size
-        }
-      : null;
+  async resetObject(fullPath: string, size?: number) {
+    const obj = await this.doGetObject(fullPath);
+    if (!obj) {
+      return null;
+    }
+    await this.putObject(obj);
+    return obj;
   }
 
   protected async doDelete(fullPath: string, isFile: boolean) {
@@ -76,6 +64,31 @@ export class ExpoFsAccessor extends AbstractAccessor {
         );
       }
     }
+  }
+
+  protected async doGetContent(fullPath: string): Promise<Blob> {
+    const fileUri = this.getUri(fullPath);
+    const info = await getInfoAsync(fileUri);
+    if (!info.exists) {
+      return null;
+    }
+    const content = await readAsStringAsync(fileUri, {
+      encoding: EncodingType.Base64
+    });
+    return base64ToBlob(content);
+  }
+
+  protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
+    const fileUri = this.getUri(fullPath);
+    const info = await getInfoAsync(fileUri, { size: true });
+    return info.exists
+      ? {
+          fullPath: fullPath,
+          name: fullPath.split(DIR_SEPARATOR).pop(),
+          lastModified: info.modificationTime,
+          size: info.isDirectory ? undefined : info.size
+        }
+      : null;
   }
 
   protected async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
@@ -113,9 +126,5 @@ export class ExpoFsAccessor extends AbstractAccessor {
     } else {
       await makeDirectoryAsync(fileUri);
     }
-  }
-
-  getUri(fullPath: string) {
-    return `${this.rootDir}${fullPath}`;
   }
 }
