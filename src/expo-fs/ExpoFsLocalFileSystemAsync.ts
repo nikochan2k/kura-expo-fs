@@ -5,7 +5,7 @@ export class ExpoFsLocalFileSystemAsync extends LocalFileSystemAsync {
   constructor(rootDir: string);
   constructor(rootDir: string, useIndex: boolean);
   constructor(rootDir: string, permission: Permission);
-  constructor(private rootDir: string, config?: any) {
+  constructor(rootDir: string, config?: any) {
     super(new ExpoFsLocalFileSystem(rootDir, config));
   }
 }
