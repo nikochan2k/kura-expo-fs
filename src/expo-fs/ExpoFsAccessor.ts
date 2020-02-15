@@ -115,7 +115,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  private getUri(fullPath: string) {
+  getUri(fullPath: string) {
     return `${this.rootDir}${fullPath}`;
   }
 }
