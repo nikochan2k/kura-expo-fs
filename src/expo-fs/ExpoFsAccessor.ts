@@ -122,16 +122,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doPutObject(obj: FileSystemObject) {
-    const fileUri = this.toURL(obj.fullPath);
     if (obj.size != null) {
-      await writeAsStringAsync(fileUri, "", {
-        encoding: EncodingType.Base64
-      });
-    } else {
-      const info = await getInfoAsync(fileUri);
-      if (!info.exists) {
-        await makeDirectoryAsync(fileUri);
-      }
+      return;
+    }
+
+    const fileUri = this.toURL(obj.fullPath);
+    const info = await getInfoAsync(fileUri);
+    if (!info.exists) {
+      await makeDirectoryAsync(fileUri);
     }
   }
 }
