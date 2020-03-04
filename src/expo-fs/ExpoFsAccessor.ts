@@ -15,7 +15,6 @@ import {
   DIR_SEPARATOR,
   FileSystem,
   FileSystemObject,
-  INDEX_FILE_NAME,
   InvalidModificationError,
   Permission
 } from "kura";
@@ -57,10 +56,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
       if (names.length === 0) {
         await deleteAsync(fileUri);
       } else {
-        const index = names.pop();
-        if (names.length === 0 && index === INDEX_FILE_NAME) {
-          return;
-        }
         throw new InvalidModificationError(
           this.name,
           fullPath,
