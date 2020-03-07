@@ -11,11 +11,11 @@ import {
   AbstractAccessor,
   base64ToBlob,
   blobToBase64,
-  createPath,
   DIR_SEPARATOR,
   FileSystem,
   FileSystemObject,
   InvalidModificationError,
+  normalizePath,
   Permission
 } from "kura";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -97,7 +97,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     for (const name of names) {
       const infoUri = `${readdirUri}/${name}`;
       const info = await getInfoAsync(infoUri);
-      const fullPath = createPath(dirPath, name);
+      const fullPath = normalizePath(dirPath + DIR_SEPARATOR + name);
       objects.push({
         fullPath: fullPath,
         name: name,
