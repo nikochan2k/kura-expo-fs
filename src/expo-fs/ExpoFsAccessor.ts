@@ -50,11 +50,19 @@ export class ExpoFsAccessor extends AbstractAccessor {
       return;
     }
     if (isFile) {
-      await deleteAsync(fileUri);
+      try {
+        await deleteAsync(fileUri);
+      } catch (e) {
+        console.warn(e);
+      }
     } else {
       const names = await readDirectoryAsync(fileUri);
       if (names.length === 0) {
-        await deleteAsync(fileUri);
+        try {
+          await deleteAsync(fileUri);
+        } catch (e) {
+          console.warn(e);
+        }
       } else {
         throw new InvalidModificationError(
           this.name,
@@ -71,10 +79,15 @@ export class ExpoFsAccessor extends AbstractAccessor {
     if (!info.exists) {
       return null;
     }
-    const content = await readAsStringAsync(fileUri, {
-      encoding: EncodingType.Base64
-    });
-    return base64ToBlob(content);
+    try {
+      const content = await readAsStringAsync(fileUri, {
+        encoding: EncodingType.Base64
+      });
+      return base64ToBlob(content);
+    } catch (e) {
+      console.warn(e);
+      return null;
+    }
   }
 
   protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
@@ -111,9 +124,13 @@ export class ExpoFsAccessor extends AbstractAccessor {
   protected async doPutContent(fullPath: string, content: Blob) {
     const fileUri = this.toURL(fullPath);
     const base64 = await blobToBase64(content);
-    await writeAsStringAsync(fileUri, base64, {
-      encoding: EncodingType.Base64
-    });
+    try {
+      await writeAsStringAsync(fileUri, base64, {
+        encoding: EncodingType.Base64
+      });
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   protected async doPutObject(obj: FileSystemObject) {
@@ -124,7 +141,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
     const fileUri = this.toURL(obj.fullPath);
     const info = await getInfoAsync(fileUri);
     if (!info.exists) {
-      await makeDirectoryAsync(fileUri);
+      try {
+        await makeDirectoryAsync(fileUri);
+      } catch (e) {
+        console.warn(e);
+      }
     }
   }
 }
