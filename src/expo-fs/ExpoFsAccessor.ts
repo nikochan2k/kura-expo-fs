@@ -1,6 +1,7 @@
 import {
   deleteAsync,
   EncodingType,
+  FileInfo,
   getInfoAsync,
   makeDirectoryAsync,
   readAsStringAsync,
@@ -44,22 +45,21 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doDelete(fullPath: string, isFile: boolean) {
-    const fileUri = this.toURL(fullPath);
-    const info = await getInfoAsync(fileUri);
+    const info = await this.doGetInfo(fullPath);
     if (!info.exists) {
       return;
     }
     if (isFile) {
       try {
-        await deleteAsync(fileUri);
+        await deleteAsync(info.uri);
       } catch (e) {
         console.warn(e);
       }
     } else {
-      const names = await readDirectoryAsync(fileUri);
+      const names = await readDirectoryAsync(info.uri);
       if (names.length === 0) {
         try {
-          await deleteAsync(fileUri);
+          await deleteAsync(info.uri);
         } catch (e) {
           console.warn(e);
         }
@@ -74,13 +74,12 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doGetContent(fullPath: string): Promise<Blob> {
-    const fileUri = this.toURL(fullPath);
-    const info = await getInfoAsync(fileUri);
+    const info = await this.doGetInfo(fullPath);
     if (!info.exists) {
       return null;
     }
     try {
-      const content = await readAsStringAsync(fileUri, {
+      const content = await readAsStringAsync(info.uri, {
         encoding: EncodingType.Base64
       });
       return base64ToBlob(content);
@@ -91,8 +90,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
-    const fileUri = this.toURL(fullPath);
-    const info = await getInfoAsync(fileUri, { size: true });
+    const info = await this.doGetInfo(fullPath);
     return info.exists
       ? {
           fullPath: fullPath,
@@ -105,12 +103,20 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
     const readdirUri = this.toURL(dirPath);
-    const names = await readDirectoryAsync(readdirUri);
+    let names: string[];
+    try {
+      names = await readDirectoryAsync(readdirUri);
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
     const objects: FileSystemObject[] = [];
     for (const name of names) {
-      const infoUri = `${readdirUri}/${name}`;
-      const info = await getInfoAsync(infoUri);
       const fullPath = normalizePath(dirPath + DIR_SEPARATOR + name);
+      const info = await this.doGetInfo(fullPath);
+      if (!info.exists) {
+        continue;
+      }
       objects.push({
         fullPath: fullPath,
         name: name,
@@ -138,14 +144,23 @@ export class ExpoFsAccessor extends AbstractAccessor {
       return;
     }
 
-    const fileUri = this.toURL(obj.fullPath);
-    const info = await getInfoAsync(fileUri);
+    const info = await this.doGetInfo(obj.fullPath);
     if (!info.exists) {
       try {
-        await makeDirectoryAsync(fileUri);
+        await makeDirectoryAsync(info.uri);
       } catch (e) {
         console.warn(e);
       }
+    }
+  }
+
+  private async doGetInfo(fullPath: string) {
+    const fileUri = this.toURL(fullPath);
+    try {
+      return await getInfoAsync(fileUri, { size: true });
+    } catch (e) {
+      console.warn(e);
+      return { exists: false, uri: fileUri } as FileInfo;
     }
   }
 }
