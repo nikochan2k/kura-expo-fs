@@ -1,5 +1,6 @@
 import {
   deleteAsync,
+  documentDirectory,
   EncodingType,
   FileInfo,
   getInfoAsync,
@@ -16,23 +17,30 @@ import {
   FileSystem,
   FileSystemObject,
   InvalidModificationError,
+  LAST_DIR_SEPARATORS,
   normalizePath
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
 
 export class ExpoFsAccessor extends AbstractAccessor {
+  private rootUri: string;
+
   filesystem: FileSystem;
   name: string;
 
-  constructor(private rootDir: string, options: FileSystemOptions) {
+  constructor(rootDir: string, options: FileSystemOptions) {
     super(options);
     this.filesystem = new ExpoFsFileSystem(this);
     this.name = rootDir;
 
-    const rootUri = this.toURL("/");
-    makeDirectoryAsync(rootUri).catch(e => {
-      console.error(e);
+    this.rootUri = documentDirectory.replace(LAST_DIR_SEPARATORS, "") + rootDir;
+    this.doGetInfo("/").then(info => {
+      if (!info.exists) {
+        makeDirectoryAsync(this.rootUri).catch(e => {
+          console.error(e);
+        });
+      }
     });
   }
 
@@ -46,7 +54,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   toURL(fullPath: string): string {
-    return `${this.rootDir}${fullPath}`;
+    return `${this.rootUri}${fullPath}`;
   }
 
   protected async doDelete(fullPath: string, isFile: boolean) {
