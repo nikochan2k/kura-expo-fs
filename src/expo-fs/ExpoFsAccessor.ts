@@ -35,6 +35,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     this.name = rootDir;
 
     this.rootUri = documentDirectory.replace(LAST_DIR_SEPARATORS, "") + rootDir;
+    console.log(this.rootUri);
     this.doGetInfo("/").then(info => {
       if (!info.exists) {
         makeDirectoryAsync(this.rootUri).catch(e => {
@@ -121,7 +122,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
       names = await readDirectoryAsync(readdirUri);
     } catch (e) {
       console.error(e);
-      return [];
+      return null;
     }
     const objects: FileSystemObject[] = [];
     for (const name of names) {
@@ -169,11 +170,16 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   private async doGetInfo(fullPath: string) {
     const fileUri = this.toURL(fullPath);
+    let info: FileInfo;
     try {
-      return await getInfoAsync(fileUri, { size: true });
+      info = await getInfoAsync(fileUri, { size: true });
     } catch (e) {
       console.warn(e);
-      return { exists: false, uri: fileUri } as FileInfo;
+      info = { exists: false } as FileInfo;
     }
+    if (!info.uri) {
+      info.uri = fileUri;
+    }
+    return info;
   }
 }
