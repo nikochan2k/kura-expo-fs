@@ -29,6 +29,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
     super(options);
     this.filesystem = new ExpoFsFileSystem(this);
     this.name = rootDir;
+
+    const rootUri = this.toURL("/");
+    makeDirectoryAsync(rootUri).catch(e => {
+      console.error(e);
+    });
   }
 
   async resetObject(fullPath: string, size?: number) {
