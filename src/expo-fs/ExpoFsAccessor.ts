@@ -143,15 +143,15 @@ export class ExpoFsAccessor extends AbstractAccessor {
   private async doGetInfo(fullPath: string) {
     const uri = this.toURL(fullPath);
     try {
-      const info = await getInfoAsync(uri, { size: true });
-      if (!info.exists) {
-        throw new NotFoundError(this.name, fullPath);
-      }
-      return info;
+      var info = await getInfoAsync(uri, { size: true });
     } catch (e) {
       this.log("getInfoAsync", uri, e);
       throw new NotReadableError(this.name, fullPath, e);
     }
+    if (!info.exists) {
+      throw new NotFoundError(this.name, fullPath);
+    }
+    return info;
   }
 
   private log(message: string, uri: string, e: any) {
