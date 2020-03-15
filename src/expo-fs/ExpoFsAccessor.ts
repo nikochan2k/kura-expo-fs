@@ -54,8 +54,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
     const uri = this.toURL(fullPath);
     try {
       await deleteAsync(uri);
-    } catch (err) {
-      throw new InvalidModificationError(this.name, fullPath, err);
+    } catch (e) {
+      this.log("deleteAsync", e);
+      throw new InvalidModificationError(this.name, fullPath, e);
     }
   }
 
@@ -66,8 +67,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
         encoding: EncodingType.Base64
       });
       return base64ToBlob(content);
-    } catch (err) {
-      throw new NotReadableError(this.name, fullPath, err);
+    } catch (e) {
+      this.log("readAsStringAsync", e);
+      throw new NotReadableError(this.name, fullPath, e);
     }
   }
 
@@ -85,8 +87,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
     const uri = this.toURL(dirPath);
     try {
       var names = await readDirectoryAsync(uri);
-    } catch (err) {
-      throw new NotReadableError(this.name, dirPath, err);
+    } catch (e) {
+      this.log("readDirectoryAsync", e);
+      throw new NotReadableError(this.name, dirPath, e);
     }
     const objects: FileSystemObject[] = [];
     for (const name of names) {
@@ -117,8 +120,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
       await writeAsStringAsync(uri, base64, {
         encoding: EncodingType.Base64
       });
-    } catch (err) {
-      throw new InvalidModificationError(this.name, fullPath, err);
+    } catch (e) {
+      this.log("writeAsStringAsync", e);
+      throw new InvalidModificationError(this.name, fullPath, e);
     }
   }
 
@@ -131,6 +135,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     try {
       await makeDirectoryAsync(uri);
     } catch (e) {
+      this.log("makeDirectoryAsync", e);
       throw new InvalidModificationError(this.name, obj.fullPath, e);
     }
   }
@@ -144,7 +149,21 @@ export class ExpoFsAccessor extends AbstractAccessor {
       }
       return info;
     } catch (e) {
-      throw new NotReadableError(this.name, fullPath, e);
+      this.log("getInfoAsync", e);
+      throw new NotFoundError(this.name, fullPath, e);
+      // throw new NotReadableError(this.name, fullPath, e);
+    }
+  }
+
+  private log(message: string, e: any) {
+    if (!this.options.verbose) {
+      return;
+    }
+
+    if (!e) {
+      console.log(message + ": " + e);
+    } else {
+      console.log(message + ": " + JSON.stringify(e, null, 2));
     }
   }
 }
