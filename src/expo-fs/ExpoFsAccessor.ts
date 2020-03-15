@@ -19,7 +19,8 @@ import {
   LAST_DIR_SEPARATORS,
   normalizePath,
   NotFoundError,
-  NotReadableError
+  NotReadableError,
+  urlToBlob
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -63,10 +64,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   protected async doGetContent(fullPath: string): Promise<Blob> {
     const uri = this.toURL(fullPath);
     try {
-      const content = await readAsStringAsync(uri, {
-        encoding: EncodingType.Base64
-      });
-      return base64ToBlob(content);
+      return await urlToBlob(uri);
     } catch (e) {
       this.log("readAsStringAsync", uri, e);
       throw new NotReadableError(this.name, fullPath, e);
