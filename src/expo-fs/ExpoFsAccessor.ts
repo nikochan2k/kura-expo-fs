@@ -2,7 +2,6 @@ import {
   deleteAsync,
   documentDirectory,
   EncodingType,
-  FileInfo,
   getInfoAsync,
   makeDirectoryAsync,
   readAsStringAsync,
@@ -18,7 +17,9 @@ import {
   FileSystemObject,
   InvalidModificationError,
   LAST_DIR_SEPARATORS,
-  normalizePath
+  normalizePath,
+  NotFoundError,
+  NotReadableError
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -45,91 +46,59 @@ export class ExpoFsAccessor extends AbstractAccessor {
     });
   }
 
-  async resetObject(fullPath: string, size?: number) {
-    const obj = await this.doGetObject(fullPath);
-    if (!obj) {
-      return null;
-    }
-    await this.putObject(obj);
-    return obj;
-  }
-
   toURL(fullPath: string): string {
     return `${this.rootUri}${fullPath}`;
   }
 
   protected async doDelete(fullPath: string, isFile: boolean) {
-    const info = await this.doGetInfo(fullPath);
-    if (!info.exists) {
-      return;
-    }
-    if (isFile) {
-      try {
-        await deleteAsync(info.uri);
-      } catch (e) {
-        console.warn(e);
-      }
-    } else {
-      const names = await readDirectoryAsync(info.uri);
-      if (names.length === 0) {
-        try {
-          await deleteAsync(info.uri);
-        } catch (e) {
-          console.warn(e);
-        }
-      } else {
-        throw new InvalidModificationError(
-          this.name,
-          fullPath,
-          "directory not empty"
-        );
-      }
+    const uri = this.toURL(fullPath);
+    try {
+      await deleteAsync(uri);
+    } catch (err) {
+      throw new InvalidModificationError(this.name, fullPath, err);
     }
   }
 
   protected async doGetContent(fullPath: string): Promise<Blob> {
-    const info = await this.doGetInfo(fullPath);
-    if (!info.exists) {
-      return null;
-    }
     try {
-      const content = await readAsStringAsync(info.uri, {
+      const uri = this.toURL(fullPath);
+      const content = await readAsStringAsync(uri, {
         encoding: EncodingType.Base64
       });
       return base64ToBlob(content);
-    } catch (e) {
-      console.warn(e);
-      return null;
+    } catch (err) {
+      throw new NotReadableError(this.name, fullPath, err);
     }
   }
 
   protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
-    return info.exists
-      ? {
-          fullPath: fullPath,
-          name: fullPath.split(DIR_SEPARATOR).pop(),
-          lastModified: info.modificationTime,
-          size: info.isDirectory ? undefined : info.size
-        }
-      : null;
+    return {
+      fullPath: fullPath,
+      name: fullPath.split(DIR_SEPARATOR).pop(),
+      lastModified: info.modificationTime,
+      size: info.isDirectory ? undefined : info.size
+    };
   }
 
   protected async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
-    const readdirUri = this.toURL(dirPath);
-    let names: string[];
+    const uri = this.toURL(dirPath);
     try {
-      names = await readDirectoryAsync(readdirUri);
-    } catch (e) {
-      console.error(e);
-      return null;
+      var names = await readDirectoryAsync(uri);
+    } catch (err) {
+      throw new NotReadableError(this.name, dirPath, err);
     }
     const objects: FileSystemObject[] = [];
     for (const name of names) {
       const fullPath = normalizePath(dirPath + DIR_SEPARATOR + name);
-      const info = await this.doGetInfo(fullPath);
-      if (!info.exists) {
-        continue;
+      try {
+        var info = await this.doGetInfo(fullPath);
+      } catch (e) {
+        if (e instanceof NotFoundError) {
+          console.warn(e);
+          continue;
+        }
+        throw e;
       }
       objects.push({
         fullPath: fullPath,
@@ -142,14 +111,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doPutContent(fullPath: string, content: Blob) {
-    const fileUri = this.toURL(fullPath);
+    const uri = this.toURL(fullPath);
     const base64 = await blobToBase64(content);
     try {
-      await writeAsStringAsync(fileUri, base64, {
+      await writeAsStringAsync(uri, base64, {
         encoding: EncodingType.Base64
       });
-    } catch (e) {
-      console.warn(e);
+    } catch (err) {
+      throw new InvalidModificationError(this.name, fullPath, err);
     }
   }
 
@@ -158,28 +127,24 @@ export class ExpoFsAccessor extends AbstractAccessor {
       return;
     }
 
-    const info = await this.doGetInfo(obj.fullPath);
-    if (!info.exists) {
-      try {
-        await makeDirectoryAsync(info.uri);
-      } catch (e) {
-        console.warn(e);
-      }
+    const uri = this.toURL(obj.fullPath);
+    try {
+      await makeDirectoryAsync(uri);
+    } catch (e) {
+      throw new InvalidModificationError(this.name, obj.fullPath, e);
     }
   }
 
   private async doGetInfo(fullPath: string) {
     const fileUri = this.toURL(fullPath);
-    let info: FileInfo;
     try {
-      info = await getInfoAsync(fileUri, { size: true });
+      const info = await getInfoAsync(fileUri, { size: true });
+      if (!info.exists) {
+        throw new NotFoundError(this.name, fullPath);
+      }
+      return info;
     } catch (e) {
-      console.warn(e);
-      info = { exists: false } as FileInfo;
+      throw new NotReadableError(this.name, fullPath, e);
     }
-    if (!info.uri) {
-      info.uri = fileUri;
-    }
-    return info;
   }
 }
