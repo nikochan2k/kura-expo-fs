@@ -114,14 +114,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doPutContent(fullPath: string, content: Blob) {
-    const info = await this.doGetInfo(fullPath);
+    const uri = this.toURL(fullPath);
     const base64 = await blobToBase64(content);
     try {
-      await writeAsStringAsync(info.uri, base64, {
+      await writeAsStringAsync(uri, base64, {
         encoding: EncodingType.Base64
       });
     } catch (e) {
-      this.log("writeAsStringAsync", info.uri, e);
+      this.log("writeAsStringAsync", uri, e);
       throw new InvalidModificationError(this.name, fullPath, e);
     }
   }
@@ -131,11 +131,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
       return;
     }
 
-    const info = await this.doGetInfo(obj.fullPath);
+    const uri = this.toURL(obj.fullPath);
     try {
-      await makeDirectoryAsync(info.uri);
+      await makeDirectoryAsync(uri);
     } catch (e) {
-      this.log("makeDirectoryAsync", info.uri, e);
+      this.log("makeDirectoryAsync", uri, e);
       throw new InvalidModificationError(this.name, obj.fullPath, e);
     }
   }
