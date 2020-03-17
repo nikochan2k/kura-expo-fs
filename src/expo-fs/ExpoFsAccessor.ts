@@ -61,14 +61,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doGetContent(fullPath: string): Promise<Blob> {
-    const uri = this.toURL(fullPath);
+    const info = await this.doGetInfo(fullPath);
     try {
-      const content = await readAsStringAsync(uri, {
+      const content = await readAsStringAsync(info.uri, {
         encoding: EncodingType.Base64
       });
       return base64ToBlob(content);
     } catch (e) {
-      this.log("readAsStringAsync", uri, e);
+      this.log("readAsStringAsync", info.uri, e);
       throw new NotReadableError(this.name, fullPath, e);
     }
   }
@@ -84,11 +84,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
-    const uri = this.toURL(dirPath);
+    const dirInfo = await this.doGetInfo(dirPath);
     try {
-      var names = await readDirectoryAsync(uri);
+      var names = await readDirectoryAsync(dirInfo.uri);
     } catch (e) {
-      this.log("readDirectoryAsync", uri, e);
+      this.log("readDirectoryAsync", dirInfo.uri, e);
       throw new NotReadableError(this.name, dirPath, e);
     }
     const objects: FileSystemObject[] = [];
@@ -114,14 +114,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doPutContent(fullPath: string, content: Blob) {
-    const uri = this.toURL(fullPath);
+    const info = await this.doGetInfo(fullPath);
     const base64 = await blobToBase64(content);
     try {
-      await writeAsStringAsync(uri, base64, {
+      await writeAsStringAsync(info.uri, base64, {
         encoding: EncodingType.Base64
       });
     } catch (e) {
-      this.log("writeAsStringAsync", uri, e);
+      this.log("writeAsStringAsync", info.uri, e);
       throw new InvalidModificationError(this.name, fullPath, e);
     }
   }
@@ -131,11 +131,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
       return;
     }
 
-    const uri = this.toURL(obj.fullPath);
+    const info = await this.doGetInfo(obj.fullPath);
     try {
-      await makeDirectoryAsync(uri);
+      await makeDirectoryAsync(info.uri);
     } catch (e) {
-      this.log("makeDirectoryAsync", uri, e);
+      this.log("makeDirectoryAsync", info.uri, e);
       throw new InvalidModificationError(this.name, obj.fullPath, e);
     }
   }
