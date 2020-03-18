@@ -63,10 +63,21 @@ export class ExpoFsAccessor extends AbstractAccessor {
   protected async doGetContent(fullPath: string): Promise<Blob> {
     const info = await this.doGetInfo(fullPath);
     try {
-      const content = await readAsStringAsync(info.uri, {
-        encoding: EncodingType.Base64
-      });
-      return base64ToBlob(content);
+      const blob: Blob = await new Promise(
+        (resolve: Function, reject: Function): void => {
+          const xhr: XMLHttpRequest = new XMLHttpRequest();
+          xhr.onload = (): void => {
+            resolve(xhr.response);
+          };
+          xhr.onerror = (): void => {
+            reject(new TypeError("Network request failed"));
+          };
+          xhr.responseType = "blob";
+          xhr.open("GET", info.uri, true);
+          xhr.send(null);
+        }
+      );
+      return blob;
     } catch (e) {
       this.log("readAsStringAsync", info.uri, e);
       throw new NotReadableError(this.name, fullPath, e);
