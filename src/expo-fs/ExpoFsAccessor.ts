@@ -4,13 +4,11 @@ import {
   EncodingType,
   getInfoAsync,
   makeDirectoryAsync,
-  readAsStringAsync,
   readDirectoryAsync,
   writeAsStringAsync
 } from "expo-file-system";
 import {
   AbstractAccessor,
-  base64ToBlob,
   blobToBase64,
   DIR_SEPARATOR,
   FileSystem,
@@ -19,7 +17,8 @@ import {
   LAST_DIR_SEPARATORS,
   normalizePath,
   NotFoundError,
-  NotReadableError
+  NotReadableError,
+  urlToBlob
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -63,21 +62,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   protected async doGetContent(fullPath: string): Promise<Blob> {
     const info = await this.doGetInfo(fullPath);
     try {
-      const blob: Blob = await new Promise(
-        (resolve: Function, reject: Function): void => {
-          const xhr: XMLHttpRequest = new XMLHttpRequest();
-          xhr.onload = (): void => {
-            resolve(xhr.response);
-          };
-          xhr.onerror = (): void => {
-            reject(new TypeError("Network request failed"));
-          };
-          xhr.responseType = "blob";
-          xhr.open("GET", info.uri, true);
-          xhr.send(null);
-        }
-      );
-      return blob;
+      return urlToBlob(info.uri);
     } catch (e) {
       this.log("readAsStringAsync", info.uri, e);
       throw new NotReadableError(this.name, fullPath, e);
