@@ -18,7 +18,10 @@ if (navigator && navigator.product == "ReactNative") {
     blobToSomething(
       blob,
       (reader, sliced) => {
-        reader.readAsDataURL(sliced);
+        // react native hack
+        setTimeout(() => {
+          reader.readAsDataURL(sliced);
+        }, 0);
       },
       reader => {
         const base64 = dataUriToBase64(reader.result as string);

@@ -18,7 +18,9 @@ import {
   normalizePath,
   NotFoundError,
   NotReadableError,
-  urlToBlob
+  urlToBlob,
+  blobToSomething,
+  dataUriToBase64
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -111,11 +113,27 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doPutContent(fullPath: string, content: Blob) {
     const uri = this.toURL(fullPath);
+
+    let base64 = "";
     try {
-      var base64 = await blobToBase64(content);
+      if (0 < content.size) {
+        await blobToSomething(
+          content,
+          (reader: FileReader, sliced: Blob) => {
+            // react native hack
+            setTimeout(() => {
+              reader.readAsDataURL(sliced);
+            }, 0);
+          },
+          (reader: FileReader) => {
+            base64 += dataUriToBase64(reader.result as string);
+          }
+        );
+      }
     } catch (e) {
       throw new InvalidModificationError(this.name, fullPath, e);
     }
+
     try {
       await writeAsStringAsync(uri, base64, {
         encoding: EncodingType.Base64
