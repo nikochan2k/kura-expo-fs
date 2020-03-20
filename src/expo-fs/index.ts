@@ -1,5 +1,5 @@
 import { decode } from "base-64";
-import { dataUriToBase64 } from "kura";
+import { dataUriToBase64, fileReaderSingleton } from "kura";
 
 global.Buffer = global.Buffer || require("buffer").Buffer;
 
@@ -10,7 +10,7 @@ FileReader.prototype.readAsArrayBuffer = function(blob) {
   (this as any)._setReadyState(this.LOADING);
   (this as any)._result = null;
   (this as any)._error = null;
-  const reader = new FileReader();
+  const reader = fileReaderSingleton;
   reader.onloadend = () => {
     const base64 = dataUriToBase64(reader.result as string);
     const content = decode(base64);
