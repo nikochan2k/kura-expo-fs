@@ -61,12 +61,18 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doGetContent(fullPath: string): Promise<Blob> {
     const info = await this.doGetInfo(fullPath);
-    try {
-      return urlToBlob(info.uri);
-    } catch (e) {
-      this.log("readAsStringAsync", info.uri, e);
-      throw new NotReadableError(this.name, fullPath, e);
-    }
+    return new Promise<Blob>((resolve, reject) => {
+      // React Native hack
+      setTimeout(() => {
+        try {
+          const blob = urlToBlob(info.uri);
+          resolve(blob);
+        } catch (e) {
+          this.log("readAsStringAsync", info.uri, e);
+          reject(new NotReadableError(this.name, fullPath, e));
+        }
+      }, 0);
+    });
   }
 
   protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
@@ -111,15 +117,31 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doPutContent(fullPath: string, content: Blob) {
     const uri = this.toURL(fullPath);
-    const base64 = await blobToBase64(content);
-    try {
-      await writeAsStringAsync(uri, base64, {
-        encoding: EncodingType.Base64
-      });
-    } catch (e) {
-      this.log("writeAsStringAsync", uri, e);
-      throw new InvalidModificationError(this.name, fullPath, e);
-    }
+    const base64 = await new Promise<string>((resolve, reject) => {
+      // React Native hack
+      setTimeout(async () => {
+        try {
+          const base64 = await blobToBase64(content);
+          resolve(base64);
+        } catch (e) {
+          reject(new InvalidModificationError(this.name, fullPath, e));
+        }
+      }, 0);
+    });
+    await new Promise<void>((resolve, reject) => {
+      // React Native hack
+      setTimeout(async () => {
+        try {
+          await writeAsStringAsync(uri, base64, {
+            encoding: EncodingType.Base64
+          });
+          resolve();
+        } catch (e) {
+          this.log("writeAsStringAsync", uri, e);
+          reject(new InvalidModificationError(this.name, fullPath, e));
+        }
+      }, 0);
+    });
   }
 
   protected async doPutObject(obj: FileSystemObject) {
