@@ -15,27 +15,24 @@ if (navigator && navigator.product == "ReactNative") {
     const buffer = new ArrayBuffer(blob.size);
     const view = new Uint8Array(buffer);
     let read = 0;
-    // react native hack
-    setTimeout(() => {
-      blobToSomething(
-        blob,
-        (reader, sliced) => {
-          reader.readAsDataURL(sliced);
-        },
-        reader => {
-          const base64 = dataUriToBase64(reader.result as string);
-          const content = decode(base64);
-          view.set(
-            Array.from(content).map(c => c.charCodeAt(0)),
-            read
-          );
-          read += content.length;
-        }
-      ).then(() => {
-        (this as any)._result = buffer;
-        (this as any)._setReadyState(this.DONE);
-      });
-    }, 0);
+    blobToSomething(
+      blob,
+      (reader, sliced) => {
+        reader.readAsDataURL(sliced);
+      },
+      reader => {
+        const base64 = dataUriToBase64(reader.result as string);
+        const content = decode(base64);
+        view.set(
+          Array.from(content).map(c => c.charCodeAt(0)),
+          read
+        );
+        read += content.length;
+      }
+    ).then(() => {
+      (this as any)._result = buffer;
+      (this as any)._setReadyState(this.DONE);
+    });
   };
 }
 

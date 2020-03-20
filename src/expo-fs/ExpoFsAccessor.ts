@@ -36,13 +36,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
     this.rootUri = documentDirectory.replace(LAST_DIR_SEPARATORS, "") + rootDir;
     console.log(this.rootUri);
-    this.doGetInfo("/").then(info => {
-      if (!info.exists) {
-        makeDirectoryAsync(this.rootUri).catch(e => {
-          console.error(e);
-        });
-      }
-    });
   }
 
   toURL(fullPath: string): string {
@@ -111,16 +104,13 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doPutContent(fullPath: string, content: Blob) {
     const uri = this.toURL(fullPath);
-    const base64 = await new Promise<string>((resolve, reject) => {
-      // React Native hack
-      setTimeout(async () => {
-        try {
-          const base64 = await blobToBase64(content);
-          resolve(base64);
-        } catch (e) {
-          reject(new InvalidModificationError(this.name, fullPath, e));
-        }
-      }, 0);
+    const base64 = await new Promise<string>(async (resolve, reject) => {
+      try {
+        const base64 = await blobToBase64(content);
+        resolve(base64);
+      } catch (e) {
+        reject(new InvalidModificationError(this.name, fullPath, e));
+      }
     });
     try {
       await writeAsStringAsync(uri, base64, {
@@ -155,7 +145,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
       throw new NotReadableError(this.name, fullPath, e);
     }
     if (!info.exists) {
-      throw new NotFoundError(this.name, fullPath);
+      if (fullPath === "/") {
+        await makeDirectoryAsync(this.rootUri);
+      } else {
+        throw new NotFoundError(this.name, fullPath);
+      }
     }
     return info;
   }
