@@ -168,8 +168,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     if (!e) {
       console.log(`${message} - ${uri}`);
     } else {
-      const detail = JSON.stringify(e, null, 2);
-      console.log(`${message} - ${uri}: ${detail}`);
+      console.trace(`${message} - ${uri}:`, e);
     }
   }
 }
