@@ -61,18 +61,12 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doGetContent(fullPath: string): Promise<Blob> {
     const info = await this.doGetInfo(fullPath);
-    return new Promise<Blob>((resolve, reject) => {
-      // React Native hack
-      setTimeout(() => {
-        try {
-          const blob = urlToBlob(info.uri);
-          resolve(blob);
-        } catch (e) {
-          this.log("readAsStringAsync", info.uri, e);
-          reject(new NotReadableError(this.name, fullPath, e));
-        }
-      }, 0);
-    });
+    try {
+      return urlToBlob(info.uri);
+    } catch (e) {
+      this.log("readAsStringAsync", info.uri, e);
+      throw new NotReadableError(this.name, fullPath, e);
+    }
   }
 
   protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
@@ -128,20 +122,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
         }
       }, 0);
     });
-    await new Promise<void>((resolve, reject) => {
-      // React Native hack
-      setTimeout(async () => {
-        try {
-          await writeAsStringAsync(uri, base64, {
-            encoding: EncodingType.Base64
-          });
-          resolve();
-        } catch (e) {
-          this.log("writeAsStringAsync", uri, e);
-          reject(new InvalidModificationError(this.name, fullPath, e));
-        }
-      }, 0);
-    });
+    try {
+      await writeAsStringAsync(uri, base64, {
+        encoding: EncodingType.Base64
+      });
+    } catch (e) {
+      this.log("writeAsStringAsync", uri, e);
+      throw new InvalidModificationError(this.name, fullPath, e);
+    }
   }
 
   protected async doPutObject(obj: FileSystemObject) {
