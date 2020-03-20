@@ -111,17 +111,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doPutContent(fullPath: string, content: Blob) {
     const uri = this.toURL(fullPath);
-    const base64 = await new Promise<string>((resolve, reject) => {
-      // React Native hack
-      setTimeout(async () => {
-        try {
-          const base64 = await blobToBase64(content);
-          resolve(base64);
-        } catch (e) {
-          reject(new InvalidModificationError(this.name, fullPath, e));
-        }
-      }, 0);
-    });
+    try {
+      var base64 = await blobToBase64(content);
+    } catch (e) {
+      throw new InvalidModificationError(this.name, fullPath, e);
+    }
     try {
       await writeAsStringAsync(uri, base64, {
         encoding: EncodingType.Base64
