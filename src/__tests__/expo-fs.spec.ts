@@ -1,3 +1,4 @@
+import "kura";
 import { testAll } from "kura/lib/__tests__/filesystem";
 import { ExpoFsLocalFileSystemAsync } from "../expo-fs";
 
