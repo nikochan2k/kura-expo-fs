@@ -42,7 +42,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return `${this.rootUri}${fullPath}`;
   }
 
-  protected async doDelete(fullPath: string, isFile: boolean) {
+  async doDelete(fullPath: string, isFile: boolean) {
     const uri = this.toURL(fullPath);
     try {
       await deleteAsync(uri);
@@ -52,7 +52,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  protected async doGetContent(fullPath: string): Promise<Blob> {
+  async doGetContent(fullPath: string): Promise<Blob> {
     const info = await this.doGetInfo(fullPath);
     try {
       return await urlToBlob(info.uri);
@@ -62,7 +62,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  protected async doGetObject(fullPath: string): Promise<FileSystemObject> {
+  async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
     return {
       fullPath: fullPath,
@@ -72,7 +72,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     };
   }
 
-  protected async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
+  async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
     const dirInfo = await this.doGetInfo(dirPath);
     try {
       var names = await readDirectoryAsync(dirInfo.uri);
@@ -102,16 +102,13 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return objects;
   }
 
-  protected async doPutContent(fullPath: string, content: Blob) {
+  async doPutContent(fullPath: string, content: Blob) {
     const uri = this.toURL(fullPath);
-    const base64 = await new Promise<string>(async (resolve, reject) => {
-      try {
-        const base64 = await blobToBase64(content);
-        resolve(base64);
-      } catch (e) {
-        reject(new InvalidModificationError(this.name, fullPath, e));
-      }
-    });
+    try {
+      var base64 = await blobToBase64(content);
+    } catch (e) {
+      throw new InvalidModificationError(this.name, fullPath, e);
+    }
     try {
       await writeAsStringAsync(uri, base64, {
         encoding: EncodingType.Base64
@@ -122,7 +119,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  protected async doPutObject(obj: FileSystemObject) {
+  async doPutObject(obj: FileSystemObject) {
     if (obj.size != null) {
       return;
     }

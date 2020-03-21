@@ -1,5 +1,4 @@
-import { decode } from "base-64";
-import { blobToBase64, blobToArrayBuffer } from "kura";
+import { blobToArrayBuffer } from "kura";
 
 if (navigator && navigator.product == "ReactNative") {
   global.Buffer = global.Buffer || require("buffer").Buffer;
