@@ -55,9 +55,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
   protected async doGetContent(fullPath: string): Promise<Blob> {
     const info = await this.doGetInfo(fullPath);
     try {
-      return urlToBlob(info.uri);
+      return await urlToBlob(info.uri);
     } catch (e) {
-      this.log("readAsStringAsync", info.uri, e);
+      this.log("urlToBlob", info.uri, e);
       throw new NotReadableError(this.name, fullPath, e);
     }
   }
