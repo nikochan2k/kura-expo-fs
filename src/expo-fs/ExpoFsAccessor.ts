@@ -154,6 +154,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
       this.log("getInfoAsync", uri, e);
       throw new NotReadableError(this.name, fullPath, e);
     }
+    if (!info.exists) {
+      throw new NotFoundError(this.name, fullPath);
+    }
     return info;
   }
 
