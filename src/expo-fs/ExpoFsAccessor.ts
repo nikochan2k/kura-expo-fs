@@ -35,6 +35,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     this.name = rootDir;
 
     this.rootUri = documentDirectory.replace(LAST_DIR_SEPARATORS, "") + rootDir;
+    makeDirectoryAsync(this.rootUri);
     console.log(this.rootUri);
   }
 
@@ -140,13 +141,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     } catch (e) {
       this.log("getInfoAsync", uri, e);
       throw new NotReadableError(this.name, fullPath, e);
-    }
-    if (!info.exists) {
-      if (fullPath === "/") {
-        await makeDirectoryAsync(this.rootUri);
-      } else {
-        throw new NotFoundError(this.name, fullPath);
-      }
     }
     return info;
   }
