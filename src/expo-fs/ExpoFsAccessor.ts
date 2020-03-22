@@ -50,6 +50,12 @@ export class ExpoFsAccessor extends AbstractAccessor {
     try {
       await deleteAsync(uri);
     } catch (e) {
+      try {
+        const info = await getInfoAsync(uri); // Already exists
+        if (!info.exists) {
+          return;
+        }
+      } catch {}
       this.log("deleteAsync", uri, e);
       throw new InvalidModificationError(this.name, fullPath, e);
     }
