@@ -35,7 +35,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
     this.name = rootDir;
 
     this.rootUri = documentDirectory.replace(LAST_DIR_SEPARATORS, "") + rootDir;
-    makeDirectoryAsync(this.rootUri);
+    makeDirectoryAsync(this.rootUri).catch(e => {
+      console.debug(e);
+    });
     console.log(this.rootUri);
   }
 
@@ -129,6 +131,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
     try {
       await makeDirectoryAsync(uri);
     } catch (e) {
+      try {
+        await getInfoAsync(uri); // Already exists
+        return;
+      } catch {}
       this.log("makeDirectoryAsync", uri, e);
       throw new InvalidModificationError(this.name, obj.fullPath, e);
     }
