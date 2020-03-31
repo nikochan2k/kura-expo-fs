@@ -70,6 +70,6 @@
   "peerDependencies": {
     "base-64": "^0.1.0",
     "expo-file-system": "^8.0.0",
-    "kura": "^0.1.138"
+    "kura": "^0.1.139"
   }
 }
