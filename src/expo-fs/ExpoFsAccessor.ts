@@ -42,10 +42,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     console.log(this.rootUri);
   }
 
-  toURL(fullPath: string): string {
-    return `${this.rootUri}${fullPath}`;
-  }
-
   async doDelete(fullPath: string, isFile: boolean) {
     const uri = this.toURL(fullPath);
     try {
@@ -112,16 +108,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return objects;
   }
 
-  protected async doGetText(fullPath: string) {
-    const info = await this.doGetInfo(fullPath);
-    try {
-      return await xhrGetText(info.uri, this.name, fullPath);
-    } catch (e) {
-      this.log("xhrGetText", info.uri, e);
-      throw new NotReadableError(this.name, fullPath, e);
-    }
-  }
-
   async doPutContent(fullPath: string, content: Blob) {
     const uri = this.toURL(fullPath);
     try {
@@ -155,6 +141,25 @@ export class ExpoFsAccessor extends AbstractAccessor {
       this.log("makeDirectoryAsync", uri, e);
       throw new InvalidModificationError(this.name, obj.fullPath, e);
     }
+  }
+
+  toURL(fullPath: string): string {
+    return `${this.rootUri}${fullPath}`;
+  }
+
+  protected async doGetText(fullPath: string) {
+    const info = await this.doGetInfo(fullPath);
+    try {
+      return await xhrGetText(info.uri, this.name, fullPath);
+    } catch (e) {
+      this.log("xhrGetText", info.uri, e);
+      throw new NotReadableError(this.name, fullPath, e);
+    }
+  }
+
+  protected async doPutText(fullPath: string, text: string) {
+    const uri = this.toURL(fullPath);
+    await writeAsStringAsync(uri, text, { encoding: "utf8" });
   }
 
   private async doGetInfo(fullPath: string) {
