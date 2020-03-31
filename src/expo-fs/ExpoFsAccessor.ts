@@ -18,7 +18,8 @@ import {
   normalizePath,
   NotFoundError,
   NotReadableError,
-  xhrGet
+  xhrGetBlob,
+  xhrGetText
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -64,9 +65,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
   async doGetContent(fullPath: string): Promise<Blob> {
     const info = await this.doGetInfo(fullPath);
     try {
-      return await xhrGet(info.uri, this.name, fullPath);
+      return await xhrGetBlob(info.uri, this.name, fullPath);
     } catch (e) {
-      this.log("urlToBlob", info.uri, e);
+      this.log("xhrGetBlob", info.uri, e);
       throw new NotReadableError(this.name, fullPath, e);
     }
   }
@@ -109,6 +110,16 @@ export class ExpoFsAccessor extends AbstractAccessor {
       });
     }
     return objects;
+  }
+
+  protected async doGetText(fullPath: string) {
+    const info = await this.doGetInfo(fullPath);
+    try {
+      return await xhrGetText(info.uri, this.name, fullPath);
+    } catch (e) {
+      this.log("xhrGetText", info.uri, e);
+      throw new NotReadableError(this.name, fullPath, e);
+    }
   }
 
   async doPutContent(fullPath: string, content: Blob) {
