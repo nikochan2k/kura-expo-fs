@@ -58,12 +58,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  async doGetContent(
-    fullPath: string,
-    stringType: "base64" | "utf8"
-  ): Promise<Blob | ArrayBuffer | string> {
+  async doGetContent(fullPath: string): Promise<Blob | ArrayBuffer | string> {
     const uri = this.toURL(fullPath);
-    return readAsStringAsync(uri, stringType);
+    return readAsStringAsync(uri, { encoding: "base64" });
   }
 
   async doGetObject(fullPath: string): Promise<FileSystemObject> {
@@ -104,6 +101,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
       });
     }
     return objects;
+  }
+
+  doGetText(fullPath: string): Promise<string> {
+    const uri = this.toURL(fullPath);
+    return readAsStringAsync(uri, { encoding: "utf8" });
   }
 
   async doPutArrayBuffer(fullPath: string, buffer: ArrayBuffer): Promise<void> {
