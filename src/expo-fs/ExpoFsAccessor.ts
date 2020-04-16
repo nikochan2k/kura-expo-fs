@@ -1,14 +1,15 @@
 import {
   deleteAsync,
   documentDirectory,
-  EncodingType,
   getInfoAsync,
   makeDirectoryAsync,
+  readAsStringAsync,
   readDirectoryAsync,
-  writeAsStringAsync
+  writeAsStringAsync,
 } from "expo-file-system";
 import {
   AbstractAccessor,
+  arrayBufferToBase64,
   blobToBase64,
   DIR_SEPARATOR,
   FileSystem,
@@ -18,8 +19,6 @@ import {
   normalizePath,
   NotFoundError,
   NotReadableError,
-  xhrGetBlob,
-  xhrGetText
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -36,7 +35,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     this.name = rootDir;
 
     this.rootUri = documentDirectory.replace(LAST_DIR_SEPARATORS, "") + rootDir;
-    makeDirectoryAsync(this.rootUri).catch(e => {
+    makeDirectoryAsync(this.rootUri).catch((e) => {
       console.debug(e);
     });
     console.log(this.rootUri);
@@ -44,6 +43,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   async doDelete(fullPath: string, isFile: boolean) {
     const uri = this.toURL(fullPath);
+
     try {
       await deleteAsync(uri);
     } catch (e) {
@@ -58,14 +58,12 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  async doGetContent(fullPath: string): Promise<Blob> {
-    const info = await this.doGetInfo(fullPath);
-    try {
-      return await xhrGetBlob(info.uri, this.name, fullPath);
-    } catch (e) {
-      this.log("xhrGetBlob", info.uri, e);
-      throw new NotReadableError(this.name, fullPath, e);
-    }
+  async doGetContent(
+    fullPath: string,
+    stringType: "base64" | "utf8"
+  ): Promise<Blob | ArrayBuffer | string> {
+    const uri = this.toURL(fullPath);
+    return readAsStringAsync(uri, stringType);
   }
 
   async doGetObject(fullPath: string): Promise<FileSystemObject> {
@@ -74,7 +72,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
       fullPath: fullPath,
       name: fullPath.split(DIR_SEPARATOR).pop(),
       lastModified: info.modificationTime,
-      size: info.isDirectory ? undefined : info.size
+      size: info.isDirectory ? undefined : info.size,
     };
   }
 
@@ -102,27 +100,25 @@ export class ExpoFsAccessor extends AbstractAccessor {
         fullPath: fullPath,
         name: name,
         lastModified: info.modificationTime,
-        size: info.isDirectory ? undefined : info.size
+        size: info.isDirectory ? undefined : info.size,
       });
     }
     return objects;
   }
 
-  async doPutContent(fullPath: string, content: Blob) {
+  async doPutArrayBuffer(fullPath: string, buffer: ArrayBuffer): Promise<void> {
+    const base64 = arrayBufferToBase64(buffer);
+    await this.doPutBase64(fullPath, base64);
+  }
+
+  async doPutBase64(fullPath: string, base64: string): Promise<void> {
     const uri = this.toURL(fullPath);
-    try {
-      var base64 = await blobToBase64(content);
-    } catch (e) {
-      throw new InvalidModificationError(this.name, fullPath, e);
-    }
-    try {
-      await writeAsStringAsync(uri, base64, {
-        encoding: EncodingType.Base64
-      });
-    } catch (e) {
-      this.log("writeAsStringAsync", uri, e);
-      throw new InvalidModificationError(this.name, fullPath, e);
-    }
+    await writeAsStringAsync(uri, base64, { encoding: "base64" });
+  }
+
+  async doPutBlob(fullPath: string, blob: Blob): Promise<void> {
+    const base64 = await blobToBase64(blob);
+    await this.doPutBase64(fullPath, base64);
   }
 
   async doPutObject(obj: FileSystemObject) {
@@ -143,23 +139,13 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  toURL(fullPath: string): string {
-    return `${this.rootUri}${fullPath}`;
-  }
-
-  protected async doGetText(fullPath: string) {
-    const info = await this.doGetInfo(fullPath);
-    try {
-      return await xhrGetText(info.uri, this.name, fullPath);
-    } catch (e) {
-      this.log("xhrGetText", info.uri, e);
-      throw new NotReadableError(this.name, fullPath, e);
-    }
-  }
-
-  protected async doPutText(fullPath: string, text: string) {
+  async doPutText(fullPath: string, text: string) {
     const uri = this.toURL(fullPath);
     await writeAsStringAsync(uri, text, { encoding: "utf8" });
+  }
+
+  toURL(fullPath: string): string {
+    return `${this.rootUri}${fullPath}`;
   }
 
   private async doGetInfo(fullPath: string) {
