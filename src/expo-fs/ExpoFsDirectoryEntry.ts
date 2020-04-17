@@ -1,13 +1,11 @@
 import {
   AbstractDirectoryEntry,
   DirectoryEntry,
-  DirectoryReader,
   FileEntry,
   FileSystemObject,
-  FileSystemParams
+  FileSystemParams,
 } from "kura";
 import { ExpoFsAccessor } from "./ExpoFsAccessor";
-import { ExpoFsDirectoryReader } from "./ExpoFsDirectoryReader";
 import { ExpoFsFileEntry } from "./ExpoFsFileEntry";
 
 export class ExpoFsDirectoryEntry extends AbstractDirectoryEntry<
@@ -17,21 +15,29 @@ export class ExpoFsDirectoryEntry extends AbstractDirectoryEntry<
     super(params);
   }
 
-  createReader(): DirectoryReader {
-    return new ExpoFsDirectoryReader(this);
-  }
-
   toDirectoryEntry(obj: FileSystemObject): DirectoryEntry {
     return new ExpoFsDirectoryEntry({
       accessor: this.params.accessor,
-      ...obj
+      ...obj,
     });
   }
 
-  toFileEntry(obj: FileSystemObject): FileEntry {
+  protected createEntry(obj: FileSystemObject) {
+    return obj.size != null
+      ? new ExpoFsFileEntry({
+          accessor: this.params.accessor,
+          ...obj,
+        })
+      : new ExpoFsDirectoryEntry({
+          accessor: this.params.accessor,
+          ...obj,
+        });
+  }
+
+  protected toFileEntry(obj: FileSystemObject): FileEntry {
     return new ExpoFsFileEntry({
       accessor: this.params.accessor,
-      ...obj
+      ...obj,
     });
   }
 }
