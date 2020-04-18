@@ -103,26 +103,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return objects;
   }
 
-  doGetText(fullPath: string): Promise<string> {
-    const uri = this.toURL(fullPath);
-    return readAsStringAsync(uri, { encoding: "utf8" });
-  }
-
-  async doPutArrayBuffer(fullPath: string, buffer: ArrayBuffer): Promise<void> {
-    const base64 = arrayBufferToBase64(buffer);
-    await this.doPutBase64(fullPath, base64);
-  }
-
-  async doPutBase64(fullPath: string, base64: string): Promise<void> {
-    const uri = this.toURL(fullPath);
-    await writeAsStringAsync(uri, base64, { encoding: "base64" });
-  }
-
-  async doPutBlob(fullPath: string, blob: Blob): Promise<void> {
-    const base64 = await blobToBase64(blob);
-    await this.doPutBase64(fullPath, base64);
-  }
-
   async doPutObject(obj: FileSystemObject) {
     if (obj.size != null) {
       return;
@@ -141,13 +121,26 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  async doPutText(fullPath: string, text: string) {
-    const uri = this.toURL(fullPath);
-    await writeAsStringAsync(uri, text, { encoding: "utf8" });
-  }
-
   toURL(fullPath: string): string {
     return `${this.rootUri}${fullPath}`;
+  }
+
+  protected async doPutArrayBuffer(
+    fullPath: string,
+    buffer: ArrayBuffer
+  ): Promise<void> {
+    const base64 = arrayBufferToBase64(buffer);
+    await this.doPutBase64(fullPath, base64);
+  }
+
+  protected async doPutBase64(fullPath: string, base64: string): Promise<void> {
+    const uri = this.toURL(fullPath);
+    await writeAsStringAsync(uri, base64, { encoding: "base64" });
+  }
+
+  protected async doPutBlob(fullPath: string, blob: Blob): Promise<void> {
+    const base64 = await blobToBase64(blob);
+    await this.doPutBase64(fullPath, base64);
   }
 
   private async doGetInfo(fullPath: string) {
