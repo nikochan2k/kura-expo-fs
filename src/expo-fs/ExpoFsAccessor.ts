@@ -58,8 +58,8 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   async doGetContent(fullPath: string): Promise<Blob | ArrayBuffer | string> {
-    const uri = this.toURL(fullPath);
-    return readAsStringAsync(uri, { encoding: "base64" });
+    const info = await this.doGetInfo(fullPath);
+    return readAsStringAsync(info.uri, { encoding: "base64" });
   }
 
   async doGetObject(fullPath: string): Promise<FileSystemObject> {
