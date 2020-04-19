@@ -1,18 +1,19 @@
-import { blobToArrayBuffer } from "kura";
+import { toArrayBuffer } from "kura";
 
 if (navigator && navigator.product == "ReactNative") {
   global.Buffer = global.Buffer || require("buffer").Buffer;
 
   (process as any).browser = true;
 
-  FileReader.prototype.readAsArrayBuffer = function(blob) {
+  FileReader.prototype.readAsArrayBuffer = function (blob) {
     if (this.readyState === this.LOADING) throw new Error("InvalidStateError");
-    (this as any)._setReadyState(this.LOADING);
-    (this as any)._result = null;
-    (this as any)._error = null;
-    blobToArrayBuffer(blob).then(buffer => {
-      (this as any)._result = buffer;
-      (this as any)._setReadyState(this.DONE);
+    const self = this as any;
+    self._setReadyState(this.LOADING);
+    self._result = null;
+    self._error = null;
+    toArrayBuffer(blob).then((buffer) => {
+      self._result = buffer;
+      self._setReadyState(this.DONE);
     });
   };
 }

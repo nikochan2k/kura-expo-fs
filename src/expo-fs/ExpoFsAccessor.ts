@@ -9,8 +9,6 @@ import {
 } from "expo-file-system";
 import {
   AbstractAccessor,
-  arrayBufferToBase64,
-  blobToBase64,
   DIR_SEPARATOR,
   FileSystem,
   FileSystemObject,
@@ -19,6 +17,7 @@ import {
   normalizePath,
   NotFoundError,
   NotReadableError,
+  toBase64,
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -129,7 +128,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     fullPath: string,
     buffer: ArrayBuffer
   ): Promise<void> {
-    const base64 = arrayBufferToBase64(buffer);
+    const base64 = await toBase64(buffer);
     await this.doPutBase64(fullPath, base64);
   }
 
@@ -139,7 +138,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   protected async doPutBlob(fullPath: string, blob: Blob): Promise<void> {
-    const base64 = await blobToBase64(blob);
+    const base64 = await toBase64(blob);
     await this.doPutBase64(fullPath, base64);
   }
 
