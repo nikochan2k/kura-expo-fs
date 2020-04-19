@@ -57,7 +57,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  async doGetContent(fullPath: string): Promise<Blob | ArrayBuffer | string> {
+  async doGetContent(
+    fullPath: string
+  ): Promise<Blob | Uint8Array | ArrayBuffer | string> {
     const info = await this.doGetInfo(fullPath);
     return readAsStringAsync(info.uri, { encoding: "base64" });
   }
@@ -139,6 +141,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   protected async doPutBlob(fullPath: string, blob: Blob): Promise<void> {
     const base64 = await toBase64(blob);
+    await this.doPutBase64(fullPath, base64);
+  }
+
+  protected async doPutUint8Array(
+    fullPath: string,
+    view: Uint8Array
+  ): Promise<void> {
+    const base64 = await toBase64(view);
     await this.doPutBase64(fullPath, base64);
   }
 
