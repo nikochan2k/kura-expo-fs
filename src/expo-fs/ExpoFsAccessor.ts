@@ -152,13 +152,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     await this.doPutBase64(fullPath, base64);
   }
 
-  protected initialize(options: FileSystemOptions) {
-    if (options.shared == null) {
-      options.shared = false;
-    }
-    super.initialize(options);
-  }
-
   private async doGetInfo(fullPath: string) {
     const uri = this.toURL(fullPath);
     try {
