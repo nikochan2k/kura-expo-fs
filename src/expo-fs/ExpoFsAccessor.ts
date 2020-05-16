@@ -57,13 +57,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  async doGetContent(
-    fullPath: string
-  ): Promise<Blob | Uint8Array | ArrayBuffer | string> {
-    const info = await this.doGetInfo(fullPath);
-    return readAsStringAsync(info.uri, { encoding: "base64" });
-  }
-
   async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
     return {
@@ -104,11 +97,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return objects;
   }
 
-  async doPutObject(obj: FileSystemObject) {
-    if (obj.size != null) {
-      return;
-    }
-
+  async doMakeDirectory(obj: FileSystemObject) {
     const uri = this.toURL(obj.fullPath);
     try {
       await makeDirectoryAsync(uri);
@@ -122,34 +111,44 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
+  async doReadContent(
+    fullPath: string
+  ): Promise<Blob | Uint8Array | ArrayBuffer | string> {
+    const info = await this.doGetInfo(fullPath);
+    return readAsStringAsync(info.uri, { encoding: "base64" });
+  }
+
   toURL(fullPath: string): string {
     return `${this.rootUri}${fullPath}`;
   }
 
-  protected async doPutArrayBuffer(
+  protected async doWriteArrayBuffer(
     fullPath: string,
     buffer: ArrayBuffer
   ): Promise<void> {
     const base64 = await toBase64(buffer);
-    await this.doPutBase64(fullPath, base64);
+    await this.doWriteBase64(fullPath, base64);
   }
 
-  protected async doPutBase64(fullPath: string, base64: string): Promise<void> {
+  protected async doWriteBase64(
+    fullPath: string,
+    base64: string
+  ): Promise<void> {
     const uri = this.toURL(fullPath);
     await writeAsStringAsync(uri, base64, { encoding: "base64" });
   }
 
-  protected async doPutBlob(fullPath: string, blob: Blob): Promise<void> {
+  protected async doWriteBlob(fullPath: string, blob: Blob): Promise<void> {
     const base64 = await toBase64(blob);
-    await this.doPutBase64(fullPath, base64);
+    await this.doWriteBase64(fullPath, base64);
   }
 
-  protected async doPutUint8Array(
+  protected async doWriteUint8Array(
     fullPath: string,
     view: Uint8Array
   ): Promise<void> {
     const base64 = await toBase64(view);
-    await this.doPutBase64(fullPath, base64);
+    await this.doWriteBase64(fullPath, base64);
   }
 
   protected initialize(options: FileSystemOptions) {
