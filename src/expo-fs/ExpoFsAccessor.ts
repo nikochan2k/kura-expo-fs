@@ -18,6 +18,9 @@ import {
   NotFoundError,
   NotReadableError,
   toBase64,
+  FileNameIndex,
+  INDEX_DIR,
+  getName,
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -120,6 +123,18 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   toURL(fullPath: string): string {
     return `${this.rootUri}${fullPath}`;
+  }
+
+  protected async doSaveFileNameIndex(
+    dirPath: string,
+    fileNameIndex: FileNameIndex
+  ) {
+    const indexDir = INDEX_DIR + dirPath;
+    this.doMakeDirectory({
+      fullPath: indexDir,
+      name: getName(indexDir),
+    });
+    super.doSaveFileNameIndex(dirPath, fileNameIndex);
   }
 
   protected async doWriteArrayBuffer(

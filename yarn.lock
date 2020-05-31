@@ -509,10 +509,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.4.tgz#1581d6c16e3d4803eb079c87d4ac893ee7501c2c"
   integrity sha512-x26ur3dSXgv5AwKS0lNfbjpCakGIduWU1DU91Zz58ONRWrIKGunmZBNv4P7N+e27sJkiGDsw/3fT4AtsqQBrBA==
 
-"@types/node@^14.0.5":
-  version "14.0.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.5.tgz#3d03acd3b3414cf67faf999aed11682ed121f22b"
-  integrity sha512-90hiq6/VqtQgX8Sp0EzeIsv3r+ellbGj4URKj5j30tLlZvRUpnAe9YbYnjl3pJM93GyXU0tghHhvXHq+5rnCKA==
+"@types/node@^14.0.6":
+  version "14.0.6"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.0.6.tgz#f9e178b2da31a4b0ec60b64649e244c31ce18daf"
+  integrity sha512-FbNmu4F67d3oZMWBV6Y4MaPER+0EpE9eIYf2yaHhCWovc1dlXCZkqGX4NLHfVVr6umt20TNBdRzrNJIzIKfdbw==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.0"
@@ -2357,10 +2357,10 @@ kleur@^3.0.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
   integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
 
-kura@^0.2.78:
-  version "0.2.78"
-  resolved "https://registry.yarnpkg.com/kura/-/kura-0.2.78.tgz#3d1abcb2800bdd329c4853e80a5c0c531883ca98"
-  integrity sha512-ObkQUtjSVirmtPABORNabAnrfNwIN7GxuhjappvfURAdXatjRME6xr0wnbWM4Z5r762x2Ud/yRlN8GrghaJzEQ==
+kura@^0.2.80:
+  version "0.2.80"
+  resolved "https://registry.yarnpkg.com/kura/-/kura-0.2.80.tgz#6985ef26efcfb873ca4e3c23032145a24fda500b"
+  integrity sha512-yhN9XartxWOC7MJGR7skatjjTSXrx+1rLceOS1B8FJYdADwdM1aLuwVAoemL4y0Hoq8FNIkFisqIi+9moQRnuQ==
   dependencies:
     base-64 "^0.1.0"
     text-encoding-shim "^1.0.5"
