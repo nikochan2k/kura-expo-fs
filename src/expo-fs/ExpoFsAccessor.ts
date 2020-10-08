@@ -130,11 +130,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
     fileNameIndex: FileNameIndex
   ) {
     const indexDir = INDEX_DIR + dirPath;
-    this.doMakeDirectory({
+    await this.doMakeDirectory({
       fullPath: indexDir,
       name: getName(indexDir),
     });
-    super.doSaveFileNameIndex(dirPath, fileNameIndex);
+    await super.doSaveFileNameIndex(dirPath, fileNameIndex);
   }
 
   protected async doWriteArrayBuffer(
