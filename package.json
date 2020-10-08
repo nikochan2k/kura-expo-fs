@@ -1,6 +1,6 @@
 {
   "name": "kura-expo-fs",
-  "version": "0.2.26",
+  "version": "0.2.27",
   "description": "The FileSystem API abstraction library, Expo Filesystem Plugin",
   "author": "Yoshihiro Seki",
   "license": "MIT",
