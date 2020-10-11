@@ -12,8 +12,8 @@ import {
   DIR_SEPARATOR,
   FileSystem,
   FileSystemObject,
-  getName,
   INDEX_DIR,
+  INDEX_FILE_NAME,
   InvalidModificationError,
   LAST_DIR_SEPARATORS,
   normalizePath,
@@ -128,7 +128,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     const indexDir = INDEX_DIR + dirPath;
     await this.doMakeDirectory({
       fullPath: indexDir,
-      name: getName(indexDir),
+      name: INDEX_FILE_NAME,
     });
     return await super.saveFileNameIndex(dirPath);
   }
