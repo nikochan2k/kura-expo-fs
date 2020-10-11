@@ -61,7 +61,7 @@
     "base-64": "^0.1.0",
     "expo-file-system": "^9.2.0",
     "jest": "^26.5.2",
-    "kura": "^0.2.125",
+    "kura": "^0.2.132",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
     "typescript": "^4.0.3"
@@ -72,6 +72,6 @@
   "peerDependencies": {
     "base-64": "^0.1.0",
     "expo-file-system": "^9.2.0",
-    "kura": "^0.2.125"
+    "kura": "^0.2.132"
   }
 }

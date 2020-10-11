@@ -12,15 +12,14 @@ import {
   DIR_SEPARATOR,
   FileSystem,
   FileSystemObject,
+  getName,
+  INDEX_DIR,
   InvalidModificationError,
   LAST_DIR_SEPARATORS,
   normalizePath,
   NotFoundError,
   NotReadableError,
   toBase64,
-  FileNameIndex,
-  INDEX_DIR,
-  getName,
 } from "kura";
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
@@ -125,16 +124,13 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return `${this.rootUri}${fullPath}`;
   }
 
-  protected async doSaveFileNameIndex(
-    dirPath: string,
-    fileNameIndex: FileNameIndex
-  ) {
+  async saveFileNameIndex(dirPath: string) {
     const indexDir = INDEX_DIR + dirPath;
     await this.doMakeDirectory({
       fullPath: indexDir,
       name: getName(indexDir),
     });
-    await super.doSaveFileNameIndex(dirPath, fileNameIndex);
+    return await super.saveFileNameIndex(dirPath);
   }
 
   protected async doWriteArrayBuffer(
