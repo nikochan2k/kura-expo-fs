@@ -25,10 +25,16 @@ import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
 
 export class ExpoFsAccessor extends AbstractAccessor {
+  // #region Properties (3)
+
   private rootUri: string;
 
-  filesystem: FileSystem;
-  name: string;
+  public filesystem: FileSystem;
+  public name: string;
+
+  // #endregion Properties (3)
+
+  // #region Constructors (1)
 
   constructor(rootDir: string, options: FileSystemOptions) {
     super(options);
@@ -42,7 +48,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
     console.log(this.rootUri);
   }
 
-  async doDelete(fullPath: string, isFile: boolean) {
+  // #endregion Constructors (1)
+
+  // #region Public Methods (7)
+
+  public async doDelete(fullPath: string, isFile: boolean) {
     const uri = this.toURL(fullPath);
 
     try {
@@ -59,7 +69,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  async doGetObject(fullPath: string): Promise<FileSystemObject> {
+  public async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
     return {
       fullPath: fullPath,
@@ -69,7 +79,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     };
   }
 
-  async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
+  public async doGetObjects(dirPath: string): Promise<FileSystemObject[]> {
     const dirInfo = await this.doGetInfo(dirPath);
     try {
       var names = await readDirectoryAsync(dirInfo.uri);
@@ -99,7 +109,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return objects;
   }
 
-  async doMakeDirectory(obj: FileSystemObject) {
+  public async doMakeDirectory(obj: FileSystemObject) {
     const uri = this.toURL(obj.fullPath);
     try {
       await makeDirectoryAsync(uri);
@@ -113,18 +123,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  async doReadContent(
+  public async doReadContent(
     fullPath: string
   ): Promise<Blob | Uint8Array | ArrayBuffer | string> {
     const info = await this.doGetInfo(fullPath);
     return readAsStringAsync(info.uri, { encoding: "base64" });
   }
 
-  toURL(fullPath: string): string {
-    return `${this.rootUri}${fullPath}`;
-  }
-
-  async saveFileNameIndex(dirPath: string) {
+  public async saveFileNameIndex(dirPath: string) {
     const indexDir = INDEX_DIR + dirPath;
     await this.doMakeDirectory({
       fullPath: indexDir,
@@ -132,6 +138,14 @@ export class ExpoFsAccessor extends AbstractAccessor {
     });
     return await super.saveFileNameIndex(dirPath);
   }
+
+  public toURL(fullPath: string): string {
+    return `${this.rootUri}${fullPath}`;
+  }
+
+  // #endregion Public Methods (7)
+
+  // #region Protected Methods (4)
 
   protected async doWriteArrayBuffer(
     fullPath: string,
@@ -162,6 +176,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
     await this.doWriteBase64(fullPath, base64);
   }
 
+  // #endregion Protected Methods (4)
+
+  // #region Private Methods (2)
+
   private async doGetInfo(fullPath: string) {
     const uri = this.toURL(fullPath);
     try {
@@ -187,4 +205,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
       console.trace(`${message} - ${uri}:`, e);
     }
   }
+
+  // #endregion Private Methods (2)
 }
