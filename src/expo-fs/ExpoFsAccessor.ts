@@ -74,7 +74,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return {
       fullPath: fullPath,
       name: fullPath.split(DIR_SEPARATOR).pop(),
-      lastModified: info.modificationTime,
+      lastModified: info.modificationTime * 1000,
       size: info.isDirectory ? undefined : info.size,
     };
   }
@@ -102,7 +102,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
       objects.push({
         fullPath: fullPath,
         name: name,
-        lastModified: info.modificationTime,
+        lastModified: info.modificationTime * 1000,
         size: info.isDirectory ? undefined : info.size,
       });
     }
