@@ -45,12 +45,12 @@ export class ExpoFsAccessor extends AbstractAccessor {
     makeDirectoryAsync(this.rootUri).catch((e) => {
       console.debug(e);
     });
-    console.log(this.rootUri);
+    console.info(this.rootUri);
   }
 
   // #endregion Constructors (1)
 
-  // #region Public Methods (7)
+  // #region Public Methods (6)
 
   public async doDelete(fullPath: string, isFile: boolean) {
     const uri = this.toURL(fullPath);
@@ -71,11 +71,13 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   public async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
+    const url = this.toURL(fullPath);
     return {
-      fullPath: fullPath,
+      fullPath,
       name: fullPath.split(DIR_SEPARATOR).pop(),
       lastModified: Math.floor(info.modificationTime * 1000),
       size: info.isDirectory ? undefined : info.size,
+      url,
     };
   }
 
@@ -139,11 +141,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return await super.saveFileNameIndex(dirPath);
   }
 
-  public toURL(fullPath: string): string {
-    return `${this.rootUri}${fullPath}`;
-  }
-
-  // #endregion Public Methods (7)
+  // #endregion Public Methods (6)
 
   // #region Protected Methods (4)
 
@@ -178,7 +176,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   // #endregion Protected Methods (4)
 
-  // #region Private Methods (2)
+  // #region Private Methods (3)
 
   private async doGetInfo(fullPath: string) {
     const uri = this.toURL(fullPath);
@@ -206,5 +204,9 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  // #endregion Private Methods (2)
+  private toURL(fullPath: string): string {
+    return `${this.rootUri}${fullPath}`;
+  }
+
+  // #endregion Private Methods (3)
 }
