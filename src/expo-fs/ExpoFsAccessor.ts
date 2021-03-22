@@ -132,15 +132,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return readAsStringAsync(info.uri, { encoding: "base64" });
   }
 
-  public async saveFileNameIndex(dirPath: string) {
-    const indexDir = INDEX_DIR + dirPath;
-    await this.doMakeDirectory({
-      fullPath: indexDir,
-      name: INDEX_FILE_NAME,
-    });
-    return await super.saveFileNameIndex(dirPath);
-  }
-
   // #endregion Public Methods (6)
 
   // #region Protected Methods (4)
