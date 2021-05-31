@@ -16,14 +16,16 @@ import {
 } from "kura";
 
 export class ExpoFsTransferer extends Transferer {
+  // #region Public Methods (1)
+
   public async transfer(
     fromAccessor: AbstractAccessor,
     fromObj: FileSystemObject,
     toAccessor: AbstractAccessor,
     toObj: FileSystemObject
   ) {
-    const fromUrl = fromObj.url;
-    const toUrl = toObj.url;
+    const fromUrl = await fromAccessor.getURL(fromObj.fullPath);
+    const toUrl = await toAccessor.getURL(toObj.fullPath);
     if (fromUrl && toUrl) {
       if (fromUrl.startsWith("file:")) {
         if (toUrl.startsWith("file:")) {
@@ -65,4 +67,6 @@ export class ExpoFsTransferer extends Transferer {
       await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
     }
   }
+
+  // #endregion Public Methods (1)
 }

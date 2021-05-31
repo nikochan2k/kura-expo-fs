@@ -48,10 +48,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   // #endregion Constructors (1)
 
-  // #region Public Methods (5)
+  // #region Public Methods (6)
 
   public async doDelete(fullPath: string, isFile: boolean) {
-    const uri = this.toURL(fullPath);
+    const uri = this.getURLInternal(fullPath);
 
     try {
       await deleteAsync(uri);
@@ -69,13 +69,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   public async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
-    const url = this.toURL(fullPath);
     return {
       fullPath,
       name: fullPath.split(DIR_SEPARATOR).pop(),
       lastModified: Math.floor(info.modificationTime * 1000),
       size: info.isDirectory ? undefined : info.size,
-      url,
     };
   }
 
@@ -110,7 +108,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   }
 
   public async doMakeDirectory(obj: FileSystemObject) {
-    const uri = this.toURL(obj.fullPath);
+    const uri = this.getURLInternal(obj.fullPath);
     try {
       await makeDirectoryAsync(uri);
     } catch (e) {
@@ -130,7 +128,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return readAsStringAsync(info.uri, { encoding: "base64" });
   }
 
-  // #endregion Public Methods (5)
+  public async getURL(fullPath: string): Promise<string> {
+    return this.getURLInternal(fullPath);
+  }
+
+  // #endregion Public Methods (6)
 
   // #region Protected Methods (5)
 
@@ -146,7 +148,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     fullPath: string,
     base64: string
   ): Promise<void> {
-    const uri = this.toURL(fullPath);
+    const uri = this.getURLInternal(fullPath);
     await writeAsStringAsync(uri, base64, { encoding: "base64" });
   }
 
@@ -173,7 +175,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
   // #region Private Methods (3)
 
   private async doGetInfo(fullPath: string) {
-    const uri = this.toURL(fullPath);
+    const uri = this.getURLInternal(fullPath);
     try {
       var info = await getInfoAsync(uri, { size: true });
     } catch (e) {
@@ -186,6 +188,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return info;
   }
 
+  private getURLInternal(fullPath: string): string {
+    return `${this.rootUri}${fullPath}`;
+  }
+
   private log(message: string, uri: string, e: any) {
     if (!this.options.verbose) {
       return;
@@ -196,10 +202,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     } else {
       console.trace(`${message} - ${uri}:`, e);
     }
-  }
-
-  private toURL(fullPath: string): string {
-    return `${this.rootUri}${fullPath}`;
   }
 
   // #endregion Private Methods (3)
