@@ -12,8 +12,6 @@ import {
   DIR_SEPARATOR,
   FileSystem,
   FileSystemObject,
-  INDEX_DIR,
-  INDEX_FILE_NAME,
   InvalidModificationError,
   LAST_DIR_SEPARATORS,
   normalizePath,
@@ -71,13 +69,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   public async doGetObject(fullPath: string): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
-    const url = this.toURL(fullPath);
     return {
       fullPath,
       name: fullPath.split(DIR_SEPARATOR).pop(),
       lastModified: Math.floor(info.modificationTime * 1000),
       size: info.isDirectory ? undefined : info.size,
-      url,
     };
   }
 
@@ -130,6 +126,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
   ): Promise<Blob | Uint8Array | ArrayBuffer | string> {
     const info = await this.doGetInfo(fullPath);
     return readAsStringAsync(info.uri, { encoding: "base64" });
+  }
+
+  public async getURL(fullPath: string): Promise<string> {
+    return this.toURL(fullPath);
   }
 
   // #endregion Public Methods (6)
