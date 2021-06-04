@@ -134,7 +134,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
 
   // #endregion Public Methods (6)
 
-  // #region Protected Methods (4)
+  // #region Protected Methods (5)
 
   protected async doWriteArrayBuffer(
     fullPath: string,
@@ -157,6 +157,11 @@ export class ExpoFsAccessor extends AbstractAccessor {
     await this.doWriteBase64(fullPath, base64);
   }
 
+  protected async doWriteBuffer(fullPath: string, buffer: Buffer) {
+    const base64 = await toBase64(buffer);
+    await this.doWriteBase64(fullPath, base64);
+  }
+
   protected async doWriteUint8Array(
     fullPath: string,
     view: Uint8Array
@@ -165,7 +170,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
     await this.doWriteBase64(fullPath, base64);
   }
 
-  // #endregion Protected Methods (4)
+  // #endregion Protected Methods (5)
 
   // #region Private Methods (3)
 
