@@ -1,5 +1,5 @@
-/*
 import { toArrayBuffer } from "kura";
+
 if (navigator && navigator.product == "ReactNative") {
   global.Buffer = global.Buffer || require("buffer").Buffer;
 
@@ -17,7 +17,6 @@ if (navigator && navigator.product == "ReactNative") {
     });
   };
 }
-*/
 
 export * from "./ExpoFsLocalFileSystem";
 export * from "./ExpoFsLocalFileSystemAsync";
