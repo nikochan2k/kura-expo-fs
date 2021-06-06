@@ -20,3 +20,4 @@ if (navigator && navigator.product == "ReactNative") {
 
 export * from "./ExpoFsLocalFileSystem";
 export * from "./ExpoFsLocalFileSystemAsync";
+export * from "./ExpoFsTransferer";
