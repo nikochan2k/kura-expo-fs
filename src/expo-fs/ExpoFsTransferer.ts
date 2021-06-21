@@ -32,11 +32,15 @@ export class ExpoFsTransferer extends Transferer {
           await copyAsync({ from: fromUrl, to: toUrl });
         } else {
           const fromUrlPut = await fromAccessor.getURL(fromObj.fullPath, "PUT");
-          await uploadAsync(toUrl, fromUrlPut, {
-            httpMethod: "PUT",
-            sessionType: FileSystemSessionType.FOREGROUND,
-            uploadType: FileSystemUploadType.BINARY_CONTENT,
-          });
+          if (fromUrlPut) {
+            await uploadAsync(toUrl, fromUrlPut, {
+              httpMethod: "PUT",
+              sessionType: FileSystemSessionType.FOREGROUND,
+              uploadType: FileSystemUploadType.BINARY_CONTENT,
+            });
+          } else {
+            await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
+          }
         }
       } else {
         if (toUrl.startsWith("file:")) {
@@ -53,11 +57,15 @@ export class ExpoFsTransferer extends Transferer {
               sessionType: FileSystemSessionType.FOREGROUND,
             });
             const toUrlPut = await toAccessor.getURL(toObj.fullPath, "PUT");
-            await uploadAsync(tempUri, toUrlPut, {
-              httpMethod: "PUT",
-              sessionType: FileSystemSessionType.FOREGROUND,
-              uploadType: FileSystemUploadType.BINARY_CONTENT,
-            });
+            if (toUrlPut) {
+              await uploadAsync(tempUri, toUrlPut, {
+                httpMethod: "PUT",
+                sessionType: FileSystemSessionType.FOREGROUND,
+                uploadType: FileSystemUploadType.BINARY_CONTENT,
+              });
+            } else {
+              await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
+            }
           } finally {
             try {
               deleteAsync(tempUri);
