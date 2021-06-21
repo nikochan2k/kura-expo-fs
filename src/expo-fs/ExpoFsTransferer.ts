@@ -24,14 +24,15 @@ export class ExpoFsTransferer extends Transferer {
     toAccessor: AbstractAccessor,
     toObj: FileSystemObject
   ) {
-    const fromUrl = await fromAccessor.getURL(fromObj.fullPath);
-    const toUrl = await toAccessor.getURL(toObj.fullPath);
+    const fromUrl = await fromAccessor.getURL(fromObj.fullPath, "GET");
+    const toUrl = await toAccessor.getURL(toObj.fullPath, "GET");
     if (fromUrl && toUrl) {
       if (fromUrl.startsWith("file:")) {
         if (toUrl.startsWith("file:")) {
           await copyAsync({ from: fromUrl, to: toUrl });
         } else {
-          await uploadAsync(toUrl, fromUrl, {
+          const fromUrlPut = await fromAccessor.getURL(fromObj.fullPath, "PUT");
+          await uploadAsync(toUrl, fromUrlPut, {
             httpMethod: "PUT",
             sessionType: FileSystemSessionType.FOREGROUND,
             uploadType: FileSystemUploadType.BINARY_CONTENT,
@@ -51,7 +52,8 @@ export class ExpoFsTransferer extends Transferer {
             await downloadAsync(fromUrl, tempUri, {
               sessionType: FileSystemSessionType.FOREGROUND,
             });
-            await uploadAsync(toUrl, tempUri, {
+            const toUrlPut = await toAccessor.getURL(toObj.fullPath, "PUT");
+            await uploadAsync(tempUri, toUrlPut, {
               httpMethod: "PUT",
               sessionType: FileSystemSessionType.FOREGROUND,
               uploadType: FileSystemUploadType.BINARY_CONTENT,
