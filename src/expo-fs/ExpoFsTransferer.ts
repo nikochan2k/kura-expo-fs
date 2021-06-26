@@ -6,6 +6,7 @@ import {
   FileSystemSessionType,
   FileSystemUploadType,
   uploadAsync,
+  getInfoAsync,
 } from "expo-file-system";
 import {
   AbstractAccessor,
@@ -15,7 +16,32 @@ import {
   Transferer,
 } from "kura";
 
+interface ExpoFsTransfererOptions {
+  // #region Properties (2)
+
+  background?: boolean;
+  getOnly?: boolean;
+
+  // #endregion Properties (2)
+}
 export class ExpoFsTransferer extends Transferer {
+  // #region Constructors (1)
+
+  public constructor(private options?: ExpoFsTransfererOptions) {
+    super();
+    if (!options) {
+      options = {};
+    }
+    if (options.getOnly == null) {
+      options.getOnly = false;
+    }
+    if (options.background == null) {
+      options.background = false;
+    }
+  }
+
+  // #endregion Constructors (1)
+
   // #region Public Methods (1)
 
   public async transfer(
@@ -24,8 +50,13 @@ export class ExpoFsTransferer extends Transferer {
     toAccessor: AbstractAccessor,
     toObj: FileSystemObject
   ) {
-    const fromUrl = await fromAccessor.getURL(fromObj.fullPath, "GET");
     const toUrl = await toAccessor.getURL(toObj.fullPath, "GET");
+    if (this.options.getOnly && !toUrl.startsWith("file:")) {
+      await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
+      return;
+    }
+
+    const fromUrl = await fromAccessor.getURL(fromObj.fullPath, "GET");
     if (fromUrl && toUrl) {
       if (fromUrl.startsWith("file:")) {
         if (toUrl.startsWith("file:")) {
@@ -35,7 +66,12 @@ export class ExpoFsTransferer extends Transferer {
           if (fromUrlPut) {
             await uploadAsync(toUrl, fromUrlPut, {
               httpMethod: "PUT",
-              sessionType: FileSystemSessionType.FOREGROUND,
+              headers: {
+                "Content-Length": fromObj.size + "",
+              },
+              sessionType: this.options.background
+                ? FileSystemSessionType.BACKGROUND
+                : FileSystemSessionType.FOREGROUND,
               uploadType: FileSystemUploadType.BINARY_CONTENT,
             });
           } else {
@@ -45,7 +81,9 @@ export class ExpoFsTransferer extends Transferer {
       } else {
         if (toUrl.startsWith("file:")) {
           await downloadAsync(fromUrl, toUrl, {
-            sessionType: FileSystemSessionType.FOREGROUND,
+            sessionType: this.options.background
+              ? FileSystemSessionType.BACKGROUND
+              : FileSystemSessionType.FOREGROUND,
           });
         } else {
           const tempUri =
@@ -54,13 +92,21 @@ export class ExpoFsTransferer extends Transferer {
             Date.now();
           try {
             await downloadAsync(fromUrl, tempUri, {
-              sessionType: FileSystemSessionType.FOREGROUND,
+              sessionType: this.options.background
+                ? FileSystemSessionType.BACKGROUND
+                : FileSystemSessionType.FOREGROUND,
             });
+            const info = await getInfoAsync(tempUri);
             const toUrlPut = await toAccessor.getURL(toObj.fullPath, "PUT");
             if (toUrlPut) {
               await uploadAsync(tempUri, toUrlPut, {
                 httpMethod: "PUT",
-                sessionType: FileSystemSessionType.FOREGROUND,
+                headers: {
+                  "Content-Length": info.size + "",
+                },
+                sessionType: this.options.background
+                  ? FileSystemSessionType.BACKGROUND
+                  : FileSystemSessionType.FOREGROUND,
                 uploadType: FileSystemUploadType.BINARY_CONTENT,
               });
             } else {
