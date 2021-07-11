@@ -21,6 +21,7 @@ interface ExpoFsTransfererOptions {
 
   background?: boolean;
   getOnly?: boolean;
+  threshold?: number;
 
   // #endregion Properties (2)
 }
@@ -50,6 +51,14 @@ export class ExpoFsTransferer extends Transferer {
     toAccessor: AbstractAccessor,
     toObj: FileSystemObject
   ) {
+    if (
+      this.options.threshold != null &&
+      fromObj.size < this.options.threshold
+    ) {
+      await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
+      return;
+    }
+
     const toUrl = await toAccessor.getURL(toObj.fullPath, "GET");
     if (this.options.getOnly && !toUrl.startsWith("file:")) {
       await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
