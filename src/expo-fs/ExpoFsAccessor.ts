@@ -22,6 +22,7 @@ import {
 import { FileSystemOptions } from "kura/lib/FileSystemOptions";
 import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
 
+const CHUNK_SIZE = 96 * 1024;
 export class ExpoFsAccessor extends AbstractAccessor {
   // #region Properties (3)
 
@@ -125,7 +126,21 @@ export class ExpoFsAccessor extends AbstractAccessor {
     fullPath: string
   ): Promise<Blob | Uint8Array | ArrayBuffer | string> {
     const info = await this.doGetInfo(fullPath);
-    return readAsStringAsync(info.uri, { encoding: "base64" });
+    const chunks: string[] = [];
+    for (
+      let position = 0, end = info.size;
+      position < end;
+      position += CHUNK_SIZE
+    ) {
+      const chunk = await readAsStringAsync(info.uri, {
+        encoding: "base64",
+        position,
+        length: CHUNK_SIZE,
+      });
+      chunks.push(chunk);
+    }
+    const base64 = chunks.join("");
+    return base64;
   }
 
   public async getURL(fullPath: string): Promise<string> {

@@ -54,17 +54,17 @@
     }
   },
   "devDependencies": {
-    "@types/jest": "^26.0.22",
-    "@types/node": "^15.12.4",
-    "expo-file-system": "^9.3.0",
+    "@types/jest": "^26.0.24",
+    "@types/node": "^16.4.13",
+    "expo-file-system": "^11.0.2",
     "jest": "^26.6.3",
     "npm-run-all": "^4.1.5",
     "rimraf": "^3.0.2",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.5"
   },
   "dependencies": {
-    "expo-file-system": "^9.3.0",
-    "kura": "^0.3.59",
+    "kura": "^0.3.61",
+    "ts-jest": "^26.5.6",
     "tslib": "^2.3.0"
   }
 }
