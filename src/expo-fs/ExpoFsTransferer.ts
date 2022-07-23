@@ -5,8 +5,8 @@ import {
   downloadAsync,
   FileSystemSessionType,
   FileSystemUploadType,
-  uploadAsync,
   getInfoAsync,
+  uploadAsync,
 } from "expo-file-system";
 import {
   AbstractAccessor,
@@ -17,17 +17,11 @@ import {
 } from "kura";
 
 interface ExpoFsTransfererOptions {
-  // #region Properties (2)
-
   background?: boolean;
   getOnly?: boolean;
   threshold?: number;
-
-  // #endregion Properties (2)
 }
 export class ExpoFsTransferer extends Transferer {
-  // #region Constructors (1)
-
   public constructor(private options?: ExpoFsTransfererOptions) {
     super();
     if (!options) {
@@ -40,10 +34,6 @@ export class ExpoFsTransferer extends Transferer {
       options.background = false;
     }
   }
-
-  // #endregion Constructors (1)
-
-  // #region Public Methods (1)
 
   public async transfer(
     fromAccessor: AbstractAccessor,
@@ -73,7 +63,7 @@ export class ExpoFsTransferer extends Transferer {
         } else {
           const fromUrlPut = await fromAccessor.getURL(fromObj.fullPath, "PUT");
           if (fromUrlPut) {
-            await uploadAsync(toUrl, fromUrlPut, {
+            const result = await uploadAsync(toUrl, fromUrlPut, {
               httpMethod: "PUT",
               headers: {
                 "Content-Length": fromObj.size + "",
@@ -83,32 +73,41 @@ export class ExpoFsTransferer extends Transferer {
                 : FileSystemSessionType.FOREGROUND,
               uploadType: FileSystemUploadType.BINARY_CONTENT,
             });
+            if (!(result.status + "").startsWith("2")) {
+              throw result;
+            }
           } else {
             await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
           }
         }
       } else {
         if (toUrl.startsWith("file:")) {
-          await downloadAsync(fromUrl, toUrl, {
+          const result = await downloadAsync(fromUrl, toUrl, {
             sessionType: this.options.background
               ? FileSystemSessionType.BACKGROUND
               : FileSystemSessionType.FOREGROUND,
           });
+          if (!(result.status + "").startsWith("2")) {
+            throw result;
+          }
         } else {
           const tempUri =
             cacheDirectory.replace(LAST_DIR_SEPARATORS, "") +
             DIR_SEPARATOR +
             Date.now();
           try {
-            await downloadAsync(fromUrl, tempUri, {
+            const result = await downloadAsync(fromUrl, tempUri, {
               sessionType: this.options.background
                 ? FileSystemSessionType.BACKGROUND
                 : FileSystemSessionType.FOREGROUND,
             });
+            if (!(result.status + "").startsWith("2")) {
+              throw result;
+            }
             const info = await getInfoAsync(tempUri);
             const toUrlPut = await toAccessor.getURL(toObj.fullPath, "PUT");
             if (toUrlPut) {
-              await uploadAsync(tempUri, toUrlPut, {
+              const result = await uploadAsync(toUrlPut, tempUri, {
                 httpMethod: "PUT",
                 headers: {
                   "Content-Length": info.size + "",
@@ -118,6 +117,9 @@ export class ExpoFsTransferer extends Transferer {
                   : FileSystemSessionType.FOREGROUND,
                 uploadType: FileSystemUploadType.BINARY_CONTENT,
               });
+              if (!(result.status + "").startsWith("2")) {
+                throw result;
+              }
             } else {
               await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
             }
@@ -132,6 +134,4 @@ export class ExpoFsTransferer extends Transferer {
       await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
     }
   }
-
-  // #endregion Public Methods (1)
 }
