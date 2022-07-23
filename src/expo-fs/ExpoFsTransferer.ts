@@ -49,89 +49,79 @@ export class ExpoFsTransferer extends Transferer {
       return;
     }
 
-    const toUrl = await toAccessor.getURL(toObj.fullPath, "GET");
-    if (this.options.getOnly && !toUrl.startsWith("file:")) {
+    const fromUrl = await fromAccessor.getURL(fromObj.fullPath, "GET");
+    const toUrl = await toAccessor.getURL(toObj.fullPath, "PUT");
+    if (
+      !fromUrl ||
+      !toUrl ||
+      (this.options.getOnly && !toUrl.startsWith("file:"))
+    ) {
       await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
       return;
     }
 
-    const fromUrl = await fromAccessor.getURL(fromObj.fullPath, "GET");
-    if (fromUrl && toUrl) {
-      if (fromUrl.startsWith("file:")) {
-        if (toUrl.startsWith("file:")) {
-          await copyAsync({ from: fromUrl, to: toUrl });
-        } else {
-          const fromUrlPut = await fromAccessor.getURL(fromObj.fullPath, "PUT");
-          if (fromUrlPut) {
-            const result = await uploadAsync(toUrl, fromUrlPut, {
-              httpMethod: "PUT",
-              headers: {
-                "Content-Length": fromObj.size + "",
-              },
-              sessionType: this.options.background
-                ? FileSystemSessionType.BACKGROUND
-                : FileSystemSessionType.FOREGROUND,
-              uploadType: FileSystemUploadType.BINARY_CONTENT,
-            });
-            if (!(result.status + "").startsWith("2")) {
-              throw result;
-            }
-          } else {
-            await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
-          }
+    if (fromUrl.startsWith("file:")) {
+      if (toUrl.startsWith("file:")) {
+        await copyAsync({ from: fromUrl, to: toUrl });
+      } else {
+        const uRes = await uploadAsync(toUrl, fromUrl, {
+          httpMethod: "PUT",
+          headers: {
+            "Content-Length": fromObj.size + "",
+          },
+          sessionType: this.options.background
+            ? FileSystemSessionType.BACKGROUND
+            : FileSystemSessionType.FOREGROUND,
+          uploadType: FileSystemUploadType.BINARY_CONTENT,
+        });
+        if (!(uRes.status + "").startsWith("2")) {
+          throw uRes;
+        }
+      }
+    } else {
+      if (toUrl.startsWith("file:")) {
+        const result = await downloadAsync(fromUrl, toUrl, {
+          sessionType: this.options.background
+            ? FileSystemSessionType.BACKGROUND
+            : FileSystemSessionType.FOREGROUND,
+        });
+        if (!(result.status + "").startsWith("2")) {
+          throw result;
         }
       } else {
-        if (toUrl.startsWith("file:")) {
-          const result = await downloadAsync(fromUrl, toUrl, {
+        const tempUri =
+          cacheDirectory.replace(LAST_DIR_SEPARATORS, "") +
+          DIR_SEPARATOR +
+          Date.now();
+        try {
+          const dRes = await downloadAsync(fromUrl, tempUri, {
             sessionType: this.options.background
               ? FileSystemSessionType.BACKGROUND
               : FileSystemSessionType.FOREGROUND,
           });
-          if (!(result.status + "").startsWith("2")) {
-            throw result;
+          if (!(dRes.status + "").startsWith("2")) {
+            throw dRes;
           }
-        } else {
-          const tempUri =
-            cacheDirectory.replace(LAST_DIR_SEPARATORS, "") +
-            DIR_SEPARATOR +
-            Date.now();
+          const info = await getInfoAsync(tempUri);
+          const uRes = await uploadAsync(toUrl, tempUri, {
+            httpMethod: "PUT",
+            headers: {
+              "Content-Length": info.size + "",
+            },
+            sessionType: this.options.background
+              ? FileSystemSessionType.BACKGROUND
+              : FileSystemSessionType.FOREGROUND,
+            uploadType: FileSystemUploadType.BINARY_CONTENT,
+          });
+          if (!(uRes.status + "").startsWith("2")) {
+            throw uRes;
+          }
+        } finally {
           try {
-            const result = await downloadAsync(fromUrl, tempUri, {
-              sessionType: this.options.background
-                ? FileSystemSessionType.BACKGROUND
-                : FileSystemSessionType.FOREGROUND,
-            });
-            if (!(result.status + "").startsWith("2")) {
-              throw result;
-            }
-            const info = await getInfoAsync(tempUri);
-            const toUrlPut = await toAccessor.getURL(toObj.fullPath, "PUT");
-            if (toUrlPut) {
-              const result = await uploadAsync(toUrlPut, tempUri, {
-                httpMethod: "PUT",
-                headers: {
-                  "Content-Length": info.size + "",
-                },
-                sessionType: this.options.background
-                  ? FileSystemSessionType.BACKGROUND
-                  : FileSystemSessionType.FOREGROUND,
-                uploadType: FileSystemUploadType.BINARY_CONTENT,
-              });
-              if (!(result.status + "").startsWith("2")) {
-                throw result;
-              }
-            } else {
-              await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
-            }
-          } finally {
-            try {
-              deleteAsync(tempUri);
-            } catch {}
-          }
+            deleteAsync(tempUri);
+          } catch {}
         }
       }
-    } else {
-      await super.transfer(fromAccessor, fromObj, toAccessor, toObj);
     }
   }
 }
