@@ -8,18 +8,10 @@ import {
 import { ExpoFsAccessor } from "./ExpoFsAccessor";
 import { ExpoFsFileEntry } from "./ExpoFsFileEntry";
 
-export class ExpoFsDirectoryEntry extends AbstractDirectoryEntry<
-  ExpoFsAccessor
-> {
-  // #region Constructors (1)
-
+export class ExpoFsDirectoryEntry extends AbstractDirectoryEntry<ExpoFsAccessor> {
   constructor(params: FileSystemParams<ExpoFsAccessor>) {
     super(params);
   }
-
-  // #endregion Constructors (1)
-
-  // #region Public Methods (1)
 
   public toDirectoryEntry(obj: FileSystemObject): DirectoryEntry {
     return new ExpoFsDirectoryEntry({
@@ -27,10 +19,6 @@ export class ExpoFsDirectoryEntry extends AbstractDirectoryEntry<
       ...obj,
     });
   }
-
-  // #endregion Public Methods (1)
-
-  // #region Protected Methods (2)
 
   protected createEntry(obj: FileSystemObject) {
     return obj.size != null
@@ -50,6 +38,4 @@ export class ExpoFsDirectoryEntry extends AbstractDirectoryEntry<
       ...obj,
     });
   }
-
-  // #endregion Protected Methods (2)
 }

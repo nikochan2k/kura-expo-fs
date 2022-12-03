@@ -24,16 +24,10 @@ import { ExpoFsFileSystem } from "./ExpoFsFileSystem";
 
 const CHUNK_SIZE = 96 * 1024;
 export class ExpoFsAccessor extends AbstractAccessor {
-  // #region Properties (3)
-
   private rootUri: string;
 
   public filesystem: FileSystem;
   public name: string;
-
-  // #endregion Properties (3)
-
-  // #region Constructors (1)
 
   constructor(rootDir: string, options: FileSystemOptions) {
     super(options);
@@ -46,10 +40,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     });
     console.info(this.rootUri);
   }
-
-  // #endregion Constructors (1)
-
-  // #region Public Methods (6)
 
   public async doDelete(fullPath: string, isFile: boolean) {
     const uri = this.toURL(fullPath);
@@ -147,10 +137,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return this.toURL(fullPath);
   }
 
-  // #endregion Public Methods (6)
-
-  // #region Protected Methods (5)
-
   protected async doWriteArrayBuffer(
     fullPath: string,
     buffer: ArrayBuffer
@@ -185,10 +171,6 @@ export class ExpoFsAccessor extends AbstractAccessor {
     await this.doWriteBase64(fullPath, base64);
   }
 
-  // #endregion Protected Methods (5)
-
-  // #region Private Methods (3)
-
   private async doGetInfo(fullPath: string) {
     const uri = this.toURL(fullPath);
     try {
@@ -218,6 +200,4 @@ export class ExpoFsAccessor extends AbstractAccessor {
   private toURL(fullPath: string): string {
     return `${this.rootUri}${fullPath}`;
   }
-
-  // #endregion Private Methods (3)
 }
