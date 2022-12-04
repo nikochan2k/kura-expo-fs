@@ -98,8 +98,8 @@ export class ExpoFsAccessor extends AbstractAccessor {
     return objects;
   }
 
-  public async doMakeDirectory(obj: FileSystemObject) {
-    const uri = this.toURL(obj.fullPath);
+  public async doMakeDirectory(fullPath: string) {
+    const uri = this.toURL(fullPath);
     try {
       await makeDirectoryAsync(uri);
     } catch (e) {
@@ -108,7 +108,7 @@ export class ExpoFsAccessor extends AbstractAccessor {
         return;
       } catch {}
       this.log("makeDirectoryAsync", uri, e);
-      throw new InvalidModificationError(this.name, obj.fullPath, e);
+      throw new InvalidModificationError(this.name, fullPath, e);
     }
   }
 
