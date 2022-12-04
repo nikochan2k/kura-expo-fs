@@ -123,5 +123,10 @@ export class ExpoFsTransferer extends Transferer {
         }
       }
     }
+    await toAccessor.saveRecord(
+      toObj.fullPath,
+      fromObj.lastModified,
+      fromObj.size
+    );
   }
 }
