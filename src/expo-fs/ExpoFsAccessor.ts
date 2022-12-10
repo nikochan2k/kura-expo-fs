@@ -58,7 +58,10 @@ export class ExpoFsAccessor extends AbstractAccessor {
     }
   }
 
-  public async doGetObject(fullPath: string): Promise<FileSystemObject> {
+  public async doGetObject(
+    fullPath: string,
+    _isFile: boolean
+  ): Promise<FileSystemObject> {
     const info = await this.doGetInfo(fullPath);
     return {
       fullPath,
